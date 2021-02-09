@@ -1,0 +1,85 @@
+---
+title: "Alveolar Macrophages after Murine Lung Transplant "
+author: "Ioana-Andra Popovici"
+date: "2/8/2021"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+
+Alveolar Macrophages after Murine Lung Transplant -
+(mouse)
+
+
+INTRODUCTION
+
+In this report we will analyze data for a research study that covers the following topic: Alveolar Macrophages after Murine Lung Transplant. For this we have the following resources provided:
+
+https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE116583
+
+https://drive.google.com/drive/folders/1AqYi0Ps5t5xo6XYWXjOtO6eDOMpT1ADE - Google drive folder with the following content:
+
+- meta_data
+- salmon-quant
+- tx2gene.csv
+
+
+The project name BMS353-Alveolar-Macrophages---RNA-seq-dataset with all files and the code are available on github in a repository:
+
+https://github.com/IoanaAndra/BMS353-Alveolar-Macrophages---RNA-seq-dataset
+
+
+
+
+
+```{r}
+#installing necessary packages
+#using same R version, no need for installing each time code is run
+
+
+#install.packages("readr")
+#install.packages("ggplot2")
+#install.packages("dplyr")
+
+
+dataset_path <- "BMS353-Alveolar-Macrophages---RNA-seq-dataset/tx2gene.csv" #asigning value which represent part of the path
+file.exists(dataset_path) #file.exists() return TRUE id file can be found or FALSE if it is not found
+
+
+data_genes <- read_csv(dataset_path) #storing content of csv file into variable data_genes
+
+#check data frame that we created
+
+test_data <- read_table(data_genes)
+
+View(test)  #view() - invoking a spreadsheet style data viewer nb
+
+
+head(data_genes)
+
+
+```
+
