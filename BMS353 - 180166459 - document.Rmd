@@ -30,6 +30,10 @@ plot(pressure)
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
 
 
+BMS353
+
+Bioinformatics 
+
 Alveolar Macrophages after Murine Lung Transplant -
 (mouse)
 
@@ -42,9 +46,9 @@ https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE116583
 
 https://drive.google.com/drive/folders/1AqYi0Ps5t5xo6XYWXjOtO6eDOMpT1ADE - Google drive folder with the following content:
 
-- meta_data
-- salmon-quant
-- tx2gene.csv
+* meta_data
+* salmon-quant
+* tx2gene.csv
 
 
 The project name BMS353-Alveolar-Macrophages---RNA-seq-dataset with all files and the code are available on github in a repository:
@@ -53,7 +57,11 @@ https://github.com/IoanaAndra/BMS353-Alveolar-Macrophages---RNA-seq-dataset
 
 
 
+In order to use the necessary functions and analyze the data, we use some packages available in R:
 
+* readr
+* ggplot2
+* dplyr
 
 ```{r}
 #installing necessary packages
@@ -65,7 +73,15 @@ https://github.com/IoanaAndra/BMS353-Alveolar-Macrophages---RNA-seq-dataset
 #install.packages("dplyr")
 
 
-dataset_path <- "BMS353-Alveolar-Macrophages---RNA-seq-dataset/tx2gene.csv" #asigning value which represent part of the path
+
+
+```
+```{r}
+
+library(readr) #a package used to import spreadsheets in R
+
+dataset_path <- "tx2gene.csv" #asigning value which represent part of the path, in this case, just the name of the file worked
+
 file.exists(dataset_path) #file.exists() return TRUE id file can be found or FALSE if it is not found
 
 
@@ -73,13 +89,32 @@ data_genes <- read_csv(dataset_path) #storing content of csv file into variable 
 
 #check data frame that we created
 
-test_data <- read_table(data_genes)
+test_data <- read_table(data_genes) ##*******Error: `file` must be a string, raw vector or a connection.
 
 View(test)  #view() - invoking a spreadsheet style data viewer nb
 
 
 head(data_genes)
 
+```
+
+
+
+ANALYSIS
+
+
+```{r}
 
 ```
 
+
+
+
+
+CONCLUSIONS
+
+
+
+
+
+References
