@@ -4,6 +4,13 @@ author: "Ioana-Andra Popovici"
 date: "2/8/2021"
 output: word_document
 ---
+```{r}
+version #check version of RStudio - this is relevant for packages 
+```
+
+```{r setup, include=FALSE}
+```
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -104,7 +111,34 @@ ANALYSIS
 
 
 ```{r}
+install.packages("tximportData")
 
+library(tximportData)
+library("readr")
+# Read the sample information into R
+sampleinfo <- read.delim("meta_data/sampleInfo.txt")
+View(sampleinfo)
+sampleinfo
+
+
+rownames(sampleinfo) <- sampleinfo$run
+
+
+
+
+txi <- tximport(files=..., type="salmon", tx2gene=...)
+
+
+
+
+dirs <- list.files("salmon_quant/")
+quant_files <- list.files("salmon_quant/",pattern="quant.sf.gz",recursive = TRUE,full.names = TRUE)
+names(quant_files) <- dirs
+quant_files
+
+
+library(readr)
+quants <- read_tsv(quant_files[1])
 ```
 
 
