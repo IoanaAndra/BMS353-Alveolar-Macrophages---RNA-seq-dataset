@@ -20,8 +20,8 @@ https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE116583
 
 https://drive.google.com/drive/folders/1AqYi0Ps5t5xo6XYWXjOtO6eDOMpT1ADE - Google drive folder with the following content:
 
-- meta_data
-- salmon-quant
+- meta_data - contains information about samples
+- salmon-quant.sf files - 12 samples
 - tx2gene.csv
 
 
