@@ -75,9 +75,9 @@ In order to use the necessary functions and analyze the data, we use some packag
 #using same R version, no need for installing each time code is run
 
 
-#install.packages("readr")
-#install.packages("ggplot2")
-#install.packages("dplyr")
+install.packages("readr")
+install.packages("ggplot2")
+install.packages("dplyr")
 
 
 
@@ -111,9 +111,9 @@ ANALYSIS
 
 
 ```{r}
-install.packages("tximportData")
+install.packages("tximport")
 
-library(tximportData)
+library(tximport)
 library("readr")
 # Read the sample information into R
 sampleinfo <- read.delim("meta_data/sampleInfo.txt")
@@ -139,6 +139,8 @@ quant_files
 
 library(readr)
 quants <- read_tsv(quant_files[1])
+
+head(quants)
 ```
 
 
