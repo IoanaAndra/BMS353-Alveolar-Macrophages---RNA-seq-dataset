@@ -37,15 +37,15 @@ plot(pressure)
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
 
 
-BMS353
+**BMS353**
 
-Bioinformatics 
+**Bioinformatics**
 
-Alveolar Macrophages after Murine Lung Transplant -
-(mouse)
+**Alveolar Macrophages after Murine Lung Transplant -
+(mouse)**
 
 
-INTRODUCTION
+**INTRODUCTION**
 
 In this report we will analyze data for a research study that covers the following topic: Alveolar Macrophages after Murine Lung Transplant. For this we have the following resources provided:
 
@@ -54,7 +54,7 @@ https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE116583
 https://drive.google.com/drive/folders/1AqYi0Ps5t5xo6XYWXjOtO6eDOMpT1ADE - Google drive folder with the following content:
 
 * meta_data
-* salmon-quant
+* salmon-quant.sf files
 * tx2gene.csv
 
 
@@ -79,6 +79,7 @@ In order to use the necessary functions and analyze the data, we use some packag
 install.packages("readr")
 install.packages("ggplot2")
 install.packages("dplyr")
+install.packages("learnr")
 
 
 
@@ -108,17 +109,17 @@ head(data_genes)
 
 
 
-ANALYSIS
+**ANALYSIS**
 
 
 ```{r}
-if (!requireNamespace("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
-
-BiocManager::install("tximport")
+# if (!requireNamespace("BiocManager", quietly = TRUE))
+#     install.packages("BiocManager")
+# 
+# BiocManager::install("tximport")
 
 library(tximport)
-library("readr")
+library(readr)
 # Read the sample information into R
 sampleinfo <- read.delim("meta_data/sampleInfo.txt")
 View(sampleinfo)
@@ -132,29 +133,80 @@ rownames(sampleinfo) <- sampleinfo$run
 
 txi <- tximport(files=..., type="salmon", tx2gene=...)
 
-
-
-
 dirs <- list.files("salmon_quant/")
 quant_files <- list.files("salmon_quant/",pattern="quant.sf.gz",recursive = TRUE,full.names = TRUE)
 names(quant_files) <- dirs
 quant_files
 
+#inspect salmon output (squant.sf files)
+
 
 library(readr)
 quants <- read_tsv(quant_files[1])
+
 
 head(quants)
 ```
 
 
+```{r}
+rpk <- quants$NumReads / quants$EffectiveLength
+scale_factor <- sum(rpk) / 1e6
+tpm <- rpk / scale_factor
+
+
+#define transcript mapping
+
+gtf_file <- "Mus_musculus.GRCm38.91.chr.gtf.gz"
+file.exists(gtf_file)
+
+
+download.file("ftp://ftp.ensembl.org/pub/release-91/gtf/mus_musculus/Mus_musculus.GRCm38.91.chr.gtf.gz",destfile = gtf_file) # you have to change the link. Navigate and find the organism of interest
+
+# create a database of transcripts
+## Could take a few minutes to run the makeTxDbFromGFF command
+library(GenomicFeatures)
+txdb <- makeTxDbFromGFF(gtf_file)
+
+
+#specify number of keys and columns
+
+keytypes(txdb)
+columns(txdb)
+
+#get names for all transcripts - using keys function
+#compose query - using select function - this will return data frame
+
+k <- keys(txdb, keytype="TXNAME")
+tx_map <- select(txdb, keys = k, columns="GENEID", keytype = "TXNAME")
+
+#visualise first rows of the transcript map
+head(tx_map)
+
+
+#use tximport package
+
+library(tximport)
+tx2gene <- tx_map
+write.csv(tx2gene,file="tx2gene.csv",row.names = FALSE,quote=FALSE)
+txi <- tximport(quant_files,type="salmon",tx2gene = tx2gene)
+
+table(tx_map$TXNAME %in% quants$Name)
+
+
+library(tximport)
+tx2gene <- tx_map
+txi <- tximport(quant_files,type="salmon",tx2gene = tx2gene,ignoreTxVersion = TRUE)
+
+
+```
 
 
 
-CONCLUSIONS
+**CONCLUSIONS**
 
 
 
 
 
-References
+*References*
