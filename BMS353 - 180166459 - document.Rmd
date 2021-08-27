@@ -71,8 +71,9 @@ In order to use the necessary functions and analyze the data, we use some packag
 * dplyr
 
 ```{r}
-#installing necessary packages
-#using same R version, no need for installing each time code is run
+#SECTION FOR PACKAGES
+#installing all necessary packages
+# IF using same R version (4.0.3) and have all packages installed already, all lines of this section can be commented 
 
 
 install.packages("readr")
@@ -111,7 +112,10 @@ ANALYSIS
 
 
 ```{r}
-install.packages("tximport")
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install("tximport")
 
 library(tximport)
 library("readr")
