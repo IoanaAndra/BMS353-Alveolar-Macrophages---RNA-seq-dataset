@@ -4,25 +4,40 @@ author: "Ioana-Andra Popovici"
 date: "2/8/2021"
 output: word_document
 ---
-```{r}
+```{r echo = FALSE}
 version #check version of RStudio - this is relevant for packages 
 ```
 
-```{r setup, include=FALSE}
+```{r setup, include=FALSE echo = FALSE}
 ```
 
 
-```{r setup, include=FALSE}
+```{r setup, include=FALSE echo = FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+
+
+
+```{r}
+rm(list = ls(all.names = TRUE)) # clear all objects includes hidden objects.
+gc() #frees up memory and reports the memory usage
+```
+
+
+
+
 ## R Markdown
+
+
+FOR NOT INCLUDING R CODE IN REPORT: {r echo = FALSE}
+FOR NOT INCLUDING OUTPUT/CONSOLE PRINT in REPORT: {r eval = FALSE}
 
 This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
 
 When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 
-```{r cars}
+```{r cars echo = FALSE}
 summary(cars)
 ```
 
@@ -47,11 +62,13 @@ Note that the `echo = FALSE` parameter was added to the code chunk to prevent pr
 
 **INTRODUCTION**
 
+! [Alt text] (Users\Andr\Documents\BMS353-Alveolar-Macrophages---RNA-seq-dataset\images\image1macrophages.jpg)
+
 In this report we will analyze data for a research study that covers the following topic: Alveolar Macrophages after Murine Lung Transplant. For this we have the following resources provided:
 
-https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE116583
+[GEO](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE116583)
 
-https://drive.google.com/drive/folders/1AqYi0Ps5t5xo6XYWXjOtO6eDOMpT1ADE - Google drive folder with the following content:
+[Google drive](https://drive.google.com/drive/folders/1AqYi0Ps5t5xo6XYWXjOtO6eDOMpT1ADE) - Google drive folder with the following content:
 
 * meta_data
 * salmon-quant.sf files
@@ -60,8 +77,7 @@ https://drive.google.com/drive/folders/1AqYi0Ps5t5xo6XYWXjOtO6eDOMpT1ADE - Googl
 
 The project name BMS353-Alveolar-Macrophages---RNA-seq-dataset with all files and the code are available on github in a repository:
 
-https://github.com/IoanaAndra/BMS353-Alveolar-Macrophages---RNA-seq-dataset
-
+[Github](https://github.com/IoanaAndra/BMS353-Alveolar-Macrophages---RNA-seq-dataset)
 
 
 In order to use the necessary functions and analyze the data, we use some packages available in R:
@@ -71,6 +87,12 @@ In order to use the necessary functions and analyze the data, we use some packag
 * dplyr
 
 ```{r}
+tx2GeneFile <- read.csv(file = 'tx2gene.csv')
+head(tx2GeneFile)
+```
+
+
+```{r echo = FALSE}
 #SECTION FOR PACKAGES
 #installing all necessary packages
 # IF using same R version (4.0.3) and have all packages installed already, all lines of this section can be commented 
@@ -80,12 +102,13 @@ install.packages("readr")
 install.packages("ggplot2")
 install.packages("dplyr")
 install.packages("learnr")
+install.packages("stringi")
 
 
 
 
 ```
-```{r}
+```{r echo = FALSE}
 
 library(readr) #a package used to import spreadsheets in R
 
@@ -112,7 +135,7 @@ head(data_genes)
 **ANALYSIS**
 
 
-```{r}
+```{r echo = FALSE}
 # if (!requireNamespace("BiocManager", quietly = TRUE))
 #     install.packages("BiocManager")
 # 
@@ -126,7 +149,7 @@ View(sampleinfo)
 sampleinfo
 
 
-rownames(sampleinfo) <- sampleinfo$run
+rownames(sampleinfo) <- sampleinfo$run # open sampleinfo.txt in a new tab
 
 
 
@@ -149,7 +172,7 @@ head(quants)
 ```
 
 
-```{r}
+```{r echo = FALSE}
 rpk <- quants$NumReads / quants$EffectiveLength
 scale_factor <- sum(rpk) / 1e6
 tpm <- rpk / scale_factor
