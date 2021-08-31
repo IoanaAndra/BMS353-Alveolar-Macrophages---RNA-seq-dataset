@@ -104,12 +104,14 @@ In order to use the necessary functions and analyze the data, we use some packag
 #installing all necessary packages
 # IF using same R version (4.0.3) and have all packages installed already, all lines of this section can be commented 
 
-
-install.packages("readr")
-install.packages("ggplot2")
-install.packages("dplyr")
-install.packages("learnr")
-install.packages("DESeq2)")
+# 
+# # install.packages("readr")
+# install.packages("ggplot2")
+# install.packages("dplyr")
+# install.packages("learnr")
+    if (!requireNamespace("BiocManager", quietly = TRUE))
+  install.packages("BiocManager")
+BiocManager::install("DESeq2")
 ```
 
 
@@ -117,21 +119,21 @@ install.packages("DESeq2)")
 
 library(readr) #a package used to import spreadsheets in R
 
-dataset_path <- "tx2gene.csv" #asigning value which represent part of the path, in this case, just the name of the file worked
+datasetPath <- "tx2gene.csv" #asigning value which represent part of the path, in this case, just the name of the file worked
 
-file.exists(dataset_path) #file.exists() return TRUE id file can be found or FALSE if it is not found
+file.exists(datasetPath) #file.exists() return TRUE id file can be found or FALSE if it is not found
 
 
-data_genes <- read_csv(dataset_path) #storing content of csv file into variable data_genes
+dataGenes <- read_csv(datasetPath) #storing content of csv file into variable data_genes
 
 #check data frame that we created
 
-test_data <- read_table(data_genes) ##*******Error: `file` must be a string, raw vector or a connection.
+testData <- read_table(dataGenes) ##*******Error: `file` must be a string, raw vector or a connection.
 
 View(test)  #view() - invoking a spreadsheet style data viewer nb
 
 
-head(data_genes)
+head(dataGenes)
 
 ```
 
@@ -181,7 +183,6 @@ quants <- read_tsv(quant_files[1])
 
 head(quants)
 ```
-```{r}
 
 
 
