@@ -1,63 +1,44 @@
 ---
-title: "Alveolar Macrophages after Murine Lung Transplant "
-author: "Ioana-Andra Popovici"
+title: 'Alveolar Macrophages after Murine Lung Transplant '
+author: '180166459'
 date: "2/8/2021"
-output: word_document
+output:
+  word_document: default
+  html_document:
+    df_print: paged
 ---
-```{r echo = FALSE}
+```{r echo = FALSE, eval = FALSE}
 version #check version of RStudio - this is relevant for packages 
 ```
 
-```{r setup, include=FALSE echo = FALSE}
+```{r setup, include=FALSE}
 ```
 
-
-```{r setup, include=FALSE echo = FALSE}
+```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-
-
-
-```{r}
+```{r echo = FALSE, eval = FALSE}
+#Clear Workspace
 rm(list = ls(all.names = TRUE)) # clear all objects includes hidden objects.
 gc() #frees up memory and reports the memory usage
 ```
 
-
-
-
 ## R Markdown
 
+# **BMS353**
+
+# **Bioinformatics**
+
+**Alveolar Macrophages after Murine Lung Transplant -
+(mouse)**
 
 FOR NOT INCLUDING R CODE IN REPORT: {r echo = FALSE}
 FOR NOT INCLUDING OUTPUT/CONSOLE PRINT in REPORT: {r eval = FALSE}
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+This is an R Markdown document. Markdown is a simple formatting syntax.
 
 When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars echo = FALSE}
-summary(cars)
-```
-
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
-
-
-**BMS353**
-
-**Bioinformatics**
-
-**Alveolar Macrophages after Murine Lung Transplant -
-(mouse)**
 
 
 **INTRODUCTION**
@@ -86,47 +67,76 @@ In order to use the necessary functions and analyze the data, we use some packag
 * ggplot2
 * dplyr
 
-```{r}
-tx2GeneFile <- read.csv(file = 'tx2gene.csv')
-head(tx2GeneFile)
+Every chunk of code can be name like this:
+```{r Name_of_chunk_here}
+
 ```
 
+Installing packages in R
 
-```{r echo = FALSE}
+```{r eval = FALSE, tidy =FALSE}
 #SECTION FOR PACKAGES
 #installing all necessary packages
-# IF using same R version (4.0.3) and have all packages installed already, all lines of this section can be commented 
+# IF using same R version (4.0.3) and have all packages installed already, all lines of this section can remain commented 
 
+ 
+# install.packages("readr")
+# install.packages("ggplot2")
+# install.packages("dplyr")
+# install.packages("learnr")
+# install.packages("stringi")
+# install.packages("tidyverse")
 
-install.packages("readr")
-install.packages("ggplot2")
-install.packages("dplyr")
-install.packages("learnr")
-install.packages("stringi")
+if (!requireNamespace("BiocManager", quietly = TRUE))     # installing tximport
+    install.packages("BiocManager")
+# 
+# BiocManager::install("tximport")
 
+# BiocManager::install("GenomicFeatures")
 
+install.packages() #check isntalled packages. This can be seen also in Packages tab
 
+old.packages() 
+
+# update.packages(ask = FALSE) #update installed packages without asking permission from user
 
 ```
-```{r echo = FALSE}
 
-library(readr) #a package used to import spreadsheets in R
+Reading tx2gene file using read.csv()
 
-dataset_path <- "tx2gene.csv" #asigning value which represent part of the path, in this case, just the name of the file worked
+With head, we display first rows of data
+```{r Read tx2gene.csv} 
+library(readr)
+tx2GeneFile <- read.csv(file = 'tx2gene.csv')
+head(tx2GeneFile)
+#view(tx2GeneFile)
+```
 
-file.exists(dataset_path) #file.exists() return TRUE id file can be found or FALSE if it is not found
 
 
-data_genes <- read_csv(dataset_path) #storing content of csv file into variable data_genes
+We are going to display tx2gene.csv
+
+```{r tidy =FALSE}
+
+library(readr) #package used to import spreadsheets in R
+
+dataPath <- "tx2gene.csv" #asigning value which represent path of file
+
+file.exists(dataPath) #file.exists() return TRUE id file can be found or FALSE if it is not found
+
+
+dataGenes <- read.csv(dataPath) #storing content of csv file into variable data_genes
+
+
 
 #check data frame that we created
 
-test_data <- read_table(data_genes) ##*******Error: `file` must be a string, raw vector or a connection.
-
-View(test)  #view() - invoking a spreadsheet style data viewer nb
-
-
-head(data_genes)
+ # testData <- read_table(dataGenes) ##*******Error: `file` must be a string, raw vector or a connection.
+# 
+# View(test)  #view() - invoking a spreadsheet style data viewer nb
+# 
+# 
+# head(dataGenes)
 
 ```
 
@@ -135,92 +145,106 @@ head(data_genes)
 **ANALYSIS**
 
 
-```{r echo = FALSE}
-# if (!requireNamespace("BiocManager", quietly = TRUE))
-#     install.packages("BiocManager")
-# 
-# BiocManager::install("tximport")
+```{r tidy =FALSE}
+
 
 library(tximport)
 library(readr)
 # Read the sample information into R
 sampleinfo <- read.delim("meta_data/sampleInfo.txt")
-View(sampleinfo)
+View(sampleinfo)    # view sampleinfo.txt in a new tab
 sampleinfo
 
 
-rownames(sampleinfo) <- sampleinfo$run # open sampleinfo.txt in a new tab
+rownames(sampleinfo) <- sampleinfo$run 
 
-
-
-
-txi <- tximport(files=..., type="salmon", tx2gene=...)
-
+# txi <- tximport(files=..., type="salmon", tx2gene=...)
+# 
+# dirs <- list.files("salmon_quant/")
+# quant_files <- list.files("salmon_quant/",pattern="quant.sf.gz",recursive = TRUE,full.names = TRUE)
+# names(quant_files) <- dirs
+# quant_files
+# 
+# #inspect salmon output (squant.sf files)
+# 
+# 
+# library(readr)
+# quants <- read_tsv(quant_files[1])
+# 
+# 
+# head(quants)
 dirs <- list.files("salmon_quant/")
-quant_files <- list.files("salmon_quant/",pattern="quant.sf.gz",recursive = TRUE,full.names = TRUE)
-names(quant_files) <- dirs
+quant_files <- list.files("salmon_quant/",pattern="quant.sf",recursive = TRUE,full.names = TRUE)
+#names(quant_files) <- dirs
 quant_files
 
-#inspect salmon output (squant.sf files)
+# tx2gene links transcript IDs to gene IDs for summarization
+tx2geneVariable <- read.csv("tx2gene.csv")
 
+txi <- tximport(files=quant_files, type="salmon", tx2gene=tx2geneVariable)
 
-library(readr)
+View(txi)  #view txi in a new tab
+
+#inspect salmon output (quant.sf files)
 quants <- read_tsv(quant_files[1])
-
-
 head(quants)
+
+#print.data.frame(quants) #print quants, maximum output to print in console 200 lines
 ```
-
-
-```{r echo = FALSE}
+```{r tidy = FALSE}
 rpk <- quants$NumReads / quants$EffectiveLength
 scale_factor <- sum(rpk) / 1e6
 tpm <- rpk / scale_factor
-
 
 #define transcript mapping
 
 gtf_file <- "Mus_musculus.GRCm38.91.chr.gtf.gz"
 file.exists(gtf_file)
 
-
 download.file("ftp://ftp.ensembl.org/pub/release-91/gtf/mus_musculus/Mus_musculus.GRCm38.91.chr.gtf.gz",destfile = gtf_file) # you have to change the link. Navigate and find the organism of interest
 
 # create a database of transcripts
 ## Could take a few minutes to run the makeTxDbFromGFF command
-library(GenomicFeatures)
-txdb <- makeTxDbFromGFF(gtf_file)
+# library(GenomicFeatures)
+# txdb <- makeTxDbFromGFF(gtf_file)
+# 
+# 
+# #specify number of keys and columns
+# 
+# keytypes(txdb)
+# columns(txdb)
+# 
+# #get names for all transcripts - using keys function
+# #compose query - using select function - this will return data frame
+# 
+# k <- keys(txdb, keytype="TXNAME")
+# tx_map <- select(txdb, keys = k, columns="GENEID", keytype = "TXNAME")
+# 
+# #visualise first rows of the transcript map
+# head(tx_map)
+```
 
 
-#specify number of keys and columns
 
-keytypes(txdb)
-columns(txdb)
+``` {r}
+# 
+# #use tximport package
+# 
+# library(tximport)
+# tx2gene <- tx_map
+# write.csv(tx2gene,file="tx2gene.csv",row.names = FALSE,quote=FALSE)
+# txi <- tximport(quant_files,type="salmon",tx2gene = tx2gene)
+# 
+# table(tx_map$TXNAME %in% quants$Name)
+# 
+# 
+# library(tximport)
+# tx2gene <- tx_map
+# txi <- tximport(quant_files,type="salmon",tx2gene = tx2gene,ignoreTxVersion = TRUE)
+# 
 
-#get names for all transcripts - using keys function
-#compose query - using select function - this will return data frame
-
-k <- keys(txdb, keytype="TXNAME")
-tx_map <- select(txdb, keys = k, columns="GENEID", keytype = "TXNAME")
-
-#visualise first rows of the transcript map
-head(tx_map)
-
-
-#use tximport package
-
-library(tximport)
-tx2gene <- tx_map
-write.csv(tx2gene,file="tx2gene.csv",row.names = FALSE,quote=FALSE)
-txi <- tximport(quant_files,type="salmon",tx2gene = tx2gene)
-
-table(tx_map$TXNAME %in% quants$Name)
-
-
-library(tximport)
-tx2gene <- tx_map
-txi <- tximport(quant_files,type="salmon",tx2gene = tx2gene,ignoreTxVersion = TRUE)
-
+```
+```{r}
 
 ```
 

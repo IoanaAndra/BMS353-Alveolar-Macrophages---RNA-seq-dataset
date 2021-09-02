@@ -112,6 +112,8 @@ In order to use the necessary functions and analyze the data, we use some packag
     if (!requireNamespace("BiocManager", quietly = TRUE))
   install.packages("BiocManager")
 BiocManager::install("DESeq2")
+
+install.packages("tidyverse")
 ```
 
 
