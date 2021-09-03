@@ -45,6 +45,15 @@ When you click the **Knit** button a document will be generated that includes bo
 
 In this report we will analyze data for a research study that covers the following topic: Alveolar Macrophages after Murine Lung Transplant. For this we have the following resources provided:
 
+*METHODS*
+
+
+|Sample no. | Condition |
+|-------:|:------|
+| 4   | naive|
+| 4 | 2h post-perfusion |
+| 4 | 24 h post-perfusion |
+
 [GEO](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE116583)
 
 [Google drive](https://drive.google.com/drive/folders/1AqYi0Ps5t5xo6XYWXjOtO6eDOMpT1ADE) - Google drive folder with the following content:
@@ -84,20 +93,24 @@ Installing packages in R
 # install.packages("learnr")
 # install.packages("stringi")
 # install.packages("tidyverse")
-
-if (!requireNamespace("BiocManager", quietly = TRUE))     # installing tximport
-    install.packages("BiocManager")
+install.packages("ggpubr")
+# if (!requireNamespace("BiocManager", quietly = TRUE))     # installing tximport
+#     install.packages("BiocManager")
 # 
 # BiocManager::install("tximport")
 
-install.packages("jsonlite")
+# install.packages("jsonlite")
 # BiocManager::install("GenomicFeatures")
 
+install.packages("S4Vectors")
+install.packages("stats4")
+install.packages("BiocGenerics")
 
 
-install.packages() #check isntalled packages. This can be seen also in Packages tab
 
-old.packages() 
+install.packages() #check installed packages. This can be seen also in Packages tab
+
+# old.packages() 
 
 # update.packages(ask = FALSE) #update installed packages without asking permission from user
 
@@ -106,6 +119,8 @@ old.packages()
 CSV and TSV file formats can be stored in variables and display first row of them using head()
 
 With head, we display first rows of data tx2gene.csv and a quant.sf
+
+tx2gene.csv is the transcripts and genes relationship table file
 ```{r Read tx2gene.csv, tidy =FALSE, collapse = FALSE} 
 library(readr)
 
@@ -131,7 +146,7 @@ library(tximport)
 library(readr)
 library(dplyr)
 # Read the sample information into R
-sampleinfo <- read.delim("meta_data/sampleInfo.txt") #reads in delimited text files
+sampleinfo <- read.delim("meta_data/sampleInfo.txt") #reads in delimited text file
 View(sampleinfo)    # view sampleinfo.txt in a new tab
 #glimpse(sampleinfo)
 sampleinfo
@@ -222,7 +237,7 @@ txi <- tximport(quant_files,type="salmon",tx2gene = tx2gene,ignoreTxVersion = TR
 
 names(txi)
 
-head(txi$counts) #displays 
+head(txi$counts) 
 
 all(rownames(sampleinfo) == colnames(txi$counts))
 
@@ -247,6 +262,7 @@ library(tximport)
 txi <- tximport(quant_files,type="salmon",tx2gene = tx2gene)
 
 
+
 ```
 Summarising
 ```{r}
@@ -258,7 +274,22 @@ summarise(quants, min(quants$Length), max(quants$Length), min(quants$EffectiveLe
 
 write.table(colnames(quants), col.names=FALSE)
 ```
-Next
+Next, testing quality assesment for the raw reads of gene transcripts that were imported with tximport.
+```{r}
+library(DESeq2)
+
+dds <- DESeqDataSetFromTximport(txi, 
+                                colData = sampleinfo,
+                                design <- ~condition)
+
+
+colData(dds)
+
+tpm <- txi$abundance #asign list of TPM values to tpm variable
+write.csv(tpm, file="tpm_values_abundance.csv",quote=FALSE)
+
+```
+
 Saving in CSV. Can be used in GOrilla
 ```{r}
 library(readr)
@@ -279,44 +310,81 @@ tx2gene <- filter(tx2gene, !is.na(GENEID))
 
 
 ```{r}
-
+library(readr)
 library(ggplot2)
-# library(zoo)
 library(data.table)
 
-head(quants)
+# head(quants)
 
-quantFile_51 <- read_tsv(file = 'salmon_quant/SRR7457551/quant.sf')
+quantFile_51 <- read_tsv(file = 'salmon_quant/SRR7457551/quant.sf', show_col_types = FALSE)
 
 
 plotVar <- ggplot(quantFile_51, aes(x = quantFile_51$TPM, y = quantFile_51$Length)) +
   geom_point()
-plotVar + theme_bw()
+plotVar + theme_bw() + scale_x_continuous(trans='log10')
 
 # plotVar + theme_minimal()
 
 # mean(quants$Length) mean(quants$EffectiveLength)
+
+
+text <- paste("text for this plot", "newline", sep = " ")
+
+text.p <- ggparagraph(text = text, face = "italic", size = 11, color = "black")
 ```
 ```{r}
+library(readr)
 library(ggplot2)
-# library(zoo)
+library(data.table)
+library(ggpubr)
+
+quantFile_53 <- read_tsv(file = 'salmon_quant/SRR7457553/quant.sf', show_col_types = FALSE)
+
+
+plotVar2 <- ggplot(quantFile_53, aes(x = quantFile_53$TPM, y = quantFile_53$Length)) +
+  geom_point()
+
+# plotvar2 + theme_bw() + scale_x_continuous(trans='log10')     #Error: object 'plotvar2' not found
+# 
+# #adding legend
+
+text <- paste("text for this plot", "newline", sep = " ")
+
+text.p <- ggparagraph(text = text, face = "italic", size = 11, color = "black")
+```
+
+
+
+
+```{r}
+
+library(ggplot2)
 library(data.table)
 
-head(quants)
 
-quantFile_53 <- read_tsv(file = 'salmon_quant/SRR7457553/quant.sf')
+quantFile_53 <- read_tsv(file = 'salmon_quant/SRR7457553/quant.sf') #naive sample
+
+quantFile_51 <- read_tsv(file = 'salmon_quant/SRR7457551/quant.sf') #2hpost-perfusion sample
 
 
-plotVar <- ggplot(quantFile_53, aes(x = quantFile_53$TPM, y = quantFile_53$Length)) +
-  geom_point()
+plotVar <- ggplot(quantFile_51, aes(x = quantFile_51$TPM, y = quantFile_51$Length)) +
+  geom_point() + ggplot(quantFile_53, aes(x = quantFile_53$TPM, y = quantFile_53$Length)) + geom_point()
 plotVar + theme_bw()
+
+plotVar + scale_x_continuous(trans='log10')
+
+
+# geom_point() + geom_point(data, color = "red") # re-define data and overwrite top layer inheritance
 ```
 
 
+```{r eval = FALSE, echo = FALSE}
+
+
+rlang::last_error() # to check last error
 
 
 ```
-
 
 
 
