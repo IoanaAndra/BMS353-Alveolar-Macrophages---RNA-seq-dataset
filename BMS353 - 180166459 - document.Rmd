@@ -4,8 +4,6 @@ author: '180166459'
 date: "2/8/2021"
 output:
   word_document: default
-  html_document:
-    df_print: paged
 ---
 ```{r echo = FALSE, eval = FALSE}
 version #check version of RStudio - this is relevant for packages 
@@ -92,7 +90,10 @@ if (!requireNamespace("BiocManager", quietly = TRUE))     # installing tximport
 # 
 # BiocManager::install("tximport")
 
+install.packages("jsonlite")
 # BiocManager::install("GenomicFeatures")
+
+
 
 install.packages() #check isntalled packages. This can be seen also in Packages tab
 
@@ -105,7 +106,7 @@ old.packages()
 Reading tx2gene file using read.csv()
 
 With head, we display first rows of data
-```{r Read tx2gene.csv} 
+```{r Read tx2gene.csv, tidy =FALSE} 
 library(readr)
 tx2GeneFile <- read.csv(file = 'tx2gene.csv')
 head(tx2GeneFile)
@@ -140,8 +141,6 @@ dataGenes <- read.csv(dataPath) #storing content of csv file into variable data_
 
 ```
 
-
-
 **ANALYSIS**
 
 
@@ -150,29 +149,16 @@ dataGenes <- read.csv(dataPath) #storing content of csv file into variable data_
 
 library(tximport)
 library(readr)
+library(dplyr)
 # Read the sample information into R
 sampleinfo <- read.delim("meta_data/sampleInfo.txt")
 View(sampleinfo)    # view sampleinfo.txt in a new tab
+#glimpse(sampleinfo)
 sampleinfo
 
 
 rownames(sampleinfo) <- sampleinfo$run 
 
-# txi <- tximport(files=..., type="salmon", tx2gene=...)
-# 
-# dirs <- list.files("salmon_quant/")
-# quant_files <- list.files("salmon_quant/",pattern="quant.sf.gz",recursive = TRUE,full.names = TRUE)
-# names(quant_files) <- dirs
-# quant_files
-# 
-# #inspect salmon output (squant.sf files)
-# 
-# 
-# library(readr)
-# quants <- read_tsv(quant_files[1])
-# 
-# 
-# head(quants)
 dirs <- list.files("salmon_quant/")
 quant_files <- list.files("salmon_quant/",pattern="quant.sf",recursive = TRUE,full.names = TRUE)
 #names(quant_files) <- dirs
@@ -189,8 +175,21 @@ View(txi)  #view txi in a new tab
 quants <- read_tsv(quant_files[1])
 head(quants)
 
+ # spec(quants)
+ 
+ filter(quants, quants$TPM ==0) #filter data where TPM = 0
 #print.data.frame(quants) #print quants, maximum output to print in console 200 lines
+ 
+tail(quants, n = 3)
+
+max(quants$TPM)
+ 
 ```
+
+
+After asigning to quants variable the files
+
+
 ```{r tidy = FALSE}
 rpk <- quants$NumReads / quants$EffectiveLength
 scale_factor <- sum(rpk) / 1e6
@@ -201,47 +200,45 @@ tpm <- rpk / scale_factor
 gtf_file <- "Mus_musculus.GRCm38.91.chr.gtf.gz"
 file.exists(gtf_file)
 
-download.file("ftp://ftp.ensembl.org/pub/release-91/gtf/mus_musculus/Mus_musculus.GRCm38.91.chr.gtf.gz",destfile = gtf_file) # you have to change the link. Navigate and find the organism of interest
+download.file("ftp://ftp.ensembl.org/pub/release-91/gtf/mus_musculus/Mus_musculus.GRCm38.91.chr.gtf.gz",destfile = gtf_file) #gtf based on organism of interest
 
 # create a database of transcripts
-## Could take a few minutes to run the makeTxDbFromGFF command
-# library(GenomicFeatures)
-# txdb <- makeTxDbFromGFF(gtf_file)
-# 
-# 
-# #specify number of keys and columns
-# 
-# keytypes(txdb)
-# columns(txdb)
-# 
-# #get names for all transcripts - using keys function
-# #compose query - using select function - this will return data frame
-# 
-# k <- keys(txdb, keytype="TXNAME")
-# tx_map <- select(txdb, keys = k, columns="GENEID", keytype = "TXNAME")
-# 
-# #visualise first rows of the transcript map
-# head(tx_map)
+# Could take a few minutes to run the makeTxDbFromGFF command
+library(GenomicFeatures)
+txdb <- makeTxDbFromGFF(gtf_file)
+
+
+#specify number of keys and columns
+
+keytypes(txdb)
+columns(txdb)
+
+#get names for all transcripts - using keys function
+#compose query - using select function - this will return data frame
+
+k <- keys(txdb, keytype="TXNAME")
+tx_map <- select(txdb, keys = k, columns="GENEID", keytype = "TXNAME")
+
+#visualise first rows of the transcript map
+head(tx_map)
 ```
 
 
 
-``` {r}
-# 
-# #use tximport package
-# 
-# library(tximport)
-# tx2gene <- tx_map
-# write.csv(tx2gene,file="tx2gene.csv",row.names = FALSE,quote=FALSE)
-# txi <- tximport(quant_files,type="salmon",tx2gene = tx2gene)
-# 
-# table(tx_map$TXNAME %in% quants$Name)
-# 
-# 
-# library(tximport)
-# tx2gene <- tx_map
-# txi <- tximport(quant_files,type="salmon",tx2gene = tx2gene,ignoreTxVersion = TRUE)
-# 
+``` {r eval = FALSE, tidy = FALSE}
+#use tximport package
+
+library(tximport)
+tx2gene <- tx_map
+write.csv(tx2gene,file="tx2gene.csv",row.names = FALSE,quote=FALSE)
+txi <- tximport(quant_files,type="salmon",tx2gene = tx2gene)
+
+table(tx_map$TXNAME %in% quants$Name)
+
+tx2gene <- tx_map
+txi <- tximport(quant_files,type="salmon",tx2gene = tx2gene,ignoreTxVersion = TRUE)
+
+head(txi)
 
 ```
 ```{r}
