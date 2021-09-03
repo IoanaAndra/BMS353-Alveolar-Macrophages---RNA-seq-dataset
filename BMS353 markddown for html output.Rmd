@@ -85,18 +85,21 @@ Installing packages in R
 # install.packages("learnr")
 # install.packages("stringi")
 # install.packages("tidyverse")
+# install.packages("jsonlite")
+# install.packages("DESeq2")
 
 if (!requireNamespace("BiocManager", quietly = TRUE))     # installing tximport
     install.packages("BiocManager")
 # 
 # BiocManager::install("tximport")
 
-install.packages("jsonlite")
+
 # BiocManager::install("GenomicFeatures")
 
 
 
-install.packages() #check isntalled packages. This can be seen also in Packages tab
+
+install.packages() #check installed packages. This can be seen also in Packages tab
 
 old.packages() 
 
@@ -144,6 +147,7 @@ dataGenes <- read.csv(dataPath) #storing content of csv file into variable data_
 
 **ANALYSIS**
 
+Sample txt. presents the full experimental design that was followed. 12 columns for all 12 samples that are found in a salmon output format file that can be further read and accessed using read_tsv
 
 ```{r tidy =FALSE, collapse = FALSE}
 
@@ -246,6 +250,9 @@ head(txi)
 
 ```
 
+```{r}
+library("DESeq2")
+```
 
 
 **CONCLUSIONS**

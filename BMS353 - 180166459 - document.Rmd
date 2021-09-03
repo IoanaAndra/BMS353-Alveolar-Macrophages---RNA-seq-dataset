@@ -103,55 +103,35 @@ old.packages()
 
 ```
 
-Reading tx2gene file using read.csv()
+CSV and TSV file formats can be stored in variables and display first row of them using head()
 
-With head, we display first rows of data
+With head, we display first rows of data tx2gene.csv and a quant.sf
 ```{r Read tx2gene.csv, tidy =FALSE, collapse = FALSE} 
 library(readr)
-tx2GeneFile <- read.csv(file = 'tx2gene.csv')
-head(tx2GeneFile)
-#view(tx2GeneFile)
-```
-
-
-
-We are going to display tx2gene.csv
-
-```{r tidy =FALSE, collapse = FALSE}
-
-library(readr) #package used to import spreadsheets in R
 
 dataPath <- "tx2gene.csv" #asigning value which represent path of file
 
 file.exists(dataPath) #file.exists() return TRUE id file can be found or FALSE if it is not found
-
-
-dataGenes <- read.csv(dataPath) #storing content of csv file into variable data_genes
-
-
-
-#check data frame that we created
-
- # testData <- read_table(dataGenes) ##*******Error: `file` must be a string, raw vector or a connection.
-# 
-# View(test)  #view() - invoking a spreadsheet style data viewer nb
-# 
-# 
-# head(dataGenes)
-
+tx2GeneFile <- read.csv(file = 'tx2gene.csv') #file with delimiter ","
+quantFile <- read_tsv(file = 'salmon_quant/SRR7457551/quant.sf') #file with delimiter "\t"
+head(tx2GeneFile)
+head(quantFile)
+#view(tx2GeneFile)
 ```
+Name represents in quant. sf the TXNAME found in tx2gene.csv. But tx2gene.csv contains all 12 samples (in order ...51-...62)
+
 
 **ANALYSIS**
 
-
-```{r tidy =FALSE, collapse = FALSE}
+Sample txt. presents the full experimental design that was followed. 12 columns for all 12 samples that are found in a salmon output format file that can be further read and accessed using read_tsv
+```{r tidy = FALSE, collapse = FALSE}
 
 
 library(tximport)
 library(readr)
 library(dplyr)
 # Read the sample information into R
-sampleinfo <- read.delim("meta_data/sampleInfo.txt")
+sampleinfo <- read.delim("meta_data/sampleInfo.txt") #reads in delimited text files
 View(sampleinfo)    # view sampleinfo.txt in a new tab
 #glimpse(sampleinfo)
 sampleinfo
@@ -247,34 +227,104 @@ head(txi$counts) #displays
 all(rownames(sampleinfo) == colnames(txi$counts))
 
 library(tidyr)
+library(dplyr)
 
 quants <- separate(quants, Name, c("TXNAME","Number"),remove = FALSE)
 head(quants)
-#ERRORTEXT:  Expected 2 pieces. Missing pieces filled with `NA` in 132374 rows [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, ...].Error in left_join(quants, tx_map, by = "TXNAME") : 
-#   could not find function "left_join"
 
 
-#commented code below
-# quants <- left_join(quants, tx_map, by="TXNAME")
-# head(quants)
-# 
-# tx2gene <- dplyr:::select(quants, Name, GENEID)
-# head(tx2gene)
-# 
-# any(is.na(tx2gene$GENEID))
-# 
-# tx2gene <- filter(tx2gene, !is.na(GENEID))
-# 
-# library(tximport)
-# txi <- tximport(quant_files,type="salmon",tx2gene = tx2gene)
+quants <- left_join(quants, tx_map, by="TXNAME")
+head(quants)
+
+tx2gene <- dplyr:::select(quants, Name, GENEID)
+head(tx2gene)
+
+any(is.na(tx2gene$GENEID))
+
+tx2gene <- filter(tx2gene, !is.na(GENEID))
+
+library(tximport)
+txi <- tximport(quant_files,type="salmon",tx2gene = tx2gene)
+
+
 ```
+Summarising
+```{r}
+library(readr)
+library(dplyr)
 
+head(quants)
+summarise(quants, min(quants$Length), max(quants$Length), min(quants$EffectiveLength),max(quants$EffectiveLength)) #summarises in a table values that we select from object 
+
+write.table(colnames(quants), col.names=FALSE)
+```
+Next
+Saving in CSV. Can be used in GOrilla
+```{r}
+library(readr)
+library(dplyr)
+
+quantFile <- read_tsv(file = 'salmon_quant/SRR7457551/quant.sf')
+write.csv(quantFile, sep=",", file = 'Salmon outputs converted into CSV/SRR7457551.csv')
+
+tx2gene <- dplyr:::select(quants, Name, GENEID)
+head(tx2gene)
+
+any(is.na(tx2gene$GENEID))
+
+tx2gene <- filter(tx2gene, !is.na(GENEID))
+# write.table(quantFile, file="", quote=TRUE, sep=",", row.names=TRUE)
+```
 
 
 
 ```{r}
 
+library(ggplot2)
+# library(zoo)
+library(data.table)
+
+head(quants)
+
+quantFile_51 <- read_tsv(file = 'salmon_quant/SRR7457551/quant.sf')
+
+
+plotVar <- ggplot(quantFile_51, aes(x = quantFile_51$TPM, y = quantFile_51$Length)) +
+  geom_point()
+plotVar + theme_bw()
+
+# plotVar + theme_minimal()
+
+# mean(quants$Length) mean(quants$EffectiveLength)
 ```
+```{r}
+library(ggplot2)
+# library(zoo)
+library(data.table)
+
+head(quants)
+
+quantFile_53 <- read_tsv(file = 'salmon_quant/SRR7457553/quant.sf')
+
+
+plotVar <- ggplot(quantFile_53, aes(x = quantFile_53$TPM, y = quantFile_53$Length)) +
+  geom_point()
+plotVar + theme_bw()
+```
+
+
+
+
+```
+
+
+
+
+
+library(readr)
+library(dplyr)
+
+quantFile <- read_tsv(file = 'salmon_quant/SRR7457551/quant.sf')
 
 
 
