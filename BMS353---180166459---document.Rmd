@@ -1,10 +1,9 @@
 ---
-title: "BMS353 for html"
-author: "Ioana-Andra Popovici"
-date: "9/3/2021"
-runtime: shiny
-output: html_document
-css: "BMS353.css"
+title: 'Alveolar Macrophages after Murine Lung Transplant '
+author: '180166459'
+date: "2/8/2021"
+output:
+  word_document: default
 ---
 ```{r echo = FALSE, eval = FALSE}
 version #check version of RStudio - this is relevant for packages 
@@ -184,6 +183,8 @@ head(quants)
 tail(quants, n = 3)
 
 max(quants$TPM)
+
+
  
 ```
 
@@ -231,7 +232,7 @@ head(tx_map)
 
 library(tximport)
 tx2gene <- tx_map
-write.csv(tx2gene,file="tx2gene.csv",row.names = FALSE,quote=FALSE)
+# write.csv(tx2gene,file="tx2gene.csv",row.names = FALSE,quote=FALSE)
 txi <- tximport(quant_files,type="salmon",tx2gene = tx2gene)
 
 table(tx_map$TXNAME %in% quants$Name)
@@ -239,9 +240,38 @@ table(tx_map$TXNAME %in% quants$Name)
 tx2gene <- tx_map
 txi <- tximport(quant_files,type="salmon",tx2gene = tx2gene,ignoreTxVersion = TRUE)
 
-head(txi)
+names(txi)
 
+head(txi$counts) #displays 
+
+all(rownames(sampleinfo) == colnames(txi$counts))
+
+library(tidyr)
+
+quants <- separate(quants, Name, c("TXNAME","Number"),remove = FALSE)
+head(quants)
+#ERRORTEXT:  Expected 2 pieces. Missing pieces filled with `NA` in 132374 rows [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, ...].Error in left_join(quants, tx_map, by = "TXNAME") : 
+#   could not find function "left_join"
+
+
+#commented code below
+# quants <- left_join(quants, tx_map, by="TXNAME")
+# head(quants)
+# 
+# tx2gene <- dplyr:::select(quants, Name, GENEID)
+# head(tx2gene)
+# 
+# any(is.na(tx2gene$GENEID))
+# 
+# tx2gene <- filter(tx2gene, !is.na(GENEID))
+# 
+# library(tximport)
+# txi <- tximport(quant_files,type="salmon",tx2gene = tx2gene)
 ```
+
+
+
+
 ```{r}
 
 ```
@@ -255,4 +285,3 @@ head(txi)
 
 
 *References*
-

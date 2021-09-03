@@ -106,7 +106,7 @@ old.packages()
 Reading tx2gene file using read.csv()
 
 With head, we display first rows of data
-```{r Read tx2gene.csv, tidy =FALSE} 
+```{r Read tx2gene.csv, tidy =FALSE, collapse = FALSE} 
 library(readr)
 tx2GeneFile <- read.csv(file = 'tx2gene.csv')
 head(tx2GeneFile)
@@ -117,7 +117,7 @@ head(tx2GeneFile)
 
 We are going to display tx2gene.csv
 
-```{r tidy =FALSE}
+```{r tidy =FALSE, collapse = FALSE}
 
 library(readr) #package used to import spreadsheets in R
 
@@ -144,7 +144,7 @@ dataGenes <- read.csv(dataPath) #storing content of csv file into variable data_
 **ANALYSIS**
 
 
-```{r tidy =FALSE}
+```{r tidy =FALSE, collapse = FALSE}
 
 
 library(tximport)
@@ -183,6 +183,8 @@ head(quants)
 tail(quants, n = 3)
 
 max(quants$TPM)
+
+
  
 ```
 
@@ -190,7 +192,7 @@ max(quants$TPM)
 After asigning to quants variable the files
 
 
-```{r tidy = FALSE}
+```{r tidy = FALSE, collapse = FALSE}
 rpk <- quants$NumReads / quants$EffectiveLength
 scale_factor <- sum(rpk) / 1e6
 tpm <- rpk / scale_factor
@@ -230,7 +232,7 @@ head(tx_map)
 
 library(tximport)
 tx2gene <- tx_map
-write.csv(tx2gene,file="tx2gene.csv",row.names = FALSE,quote=FALSE)
+# write.csv(tx2gene,file="tx2gene.csv",row.names = FALSE,quote=FALSE)
 txi <- tximport(quant_files,type="salmon",tx2gene = tx2gene)
 
 table(tx_map$TXNAME %in% quants$Name)
@@ -238,9 +240,38 @@ table(tx_map$TXNAME %in% quants$Name)
 tx2gene <- tx_map
 txi <- tximport(quant_files,type="salmon",tx2gene = tx2gene,ignoreTxVersion = TRUE)
 
-head(txi)
+names(txi)
 
+head(txi$counts) #displays 
+
+all(rownames(sampleinfo) == colnames(txi$counts))
+
+library(tidyr)
+
+quants <- separate(quants, Name, c("TXNAME","Number"),remove = FALSE)
+head(quants)
+#ERRORTEXT:  Expected 2 pieces. Missing pieces filled with `NA` in 132374 rows [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, ...].Error in left_join(quants, tx_map, by = "TXNAME") : 
+#   could not find function "left_join"
+
+
+#commented code below
+# quants <- left_join(quants, tx_map, by="TXNAME")
+# head(quants)
+# 
+# tx2gene <- dplyr:::select(quants, Name, GENEID)
+# head(tx2gene)
+# 
+# any(is.na(tx2gene$GENEID))
+# 
+# tx2gene <- filter(tx2gene, !is.na(GENEID))
+# 
+# library(tximport)
+# txi <- tximport(quant_files,type="salmon",tx2gene = tx2gene)
 ```
+
+
+
+
 ```{r}
 
 ```
