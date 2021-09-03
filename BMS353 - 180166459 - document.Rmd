@@ -102,9 +102,9 @@ install.packages("ggpubr")
 # install.packages("jsonlite")
 # BiocManager::install("GenomicFeatures")
 
-install.packages("S4Vectors")
-install.packages("stats4")
-install.packages("BiocGenerics")
+BiocManager::install("S4Vectors")
+BiocManager::install("stats4")
+BiocManager::install("BiocGenerics")
 
 
 
@@ -274,9 +274,14 @@ summarise(quants, min(quants$Length), max(quants$Length), min(quants$EffectiveLe
 
 write.table(colnames(quants), col.names=FALSE)
 ```
+
 Next, testing quality assesment for the raw reads of gene transcripts that were imported with tximport.
+
 ```{r}
 library(DESeq2)
+library(S4Vectors)
+library(stats4)
+library(BiocGenerics)
 
 dds <- DESeqDataSetFromTximport(txi, 
                                 colData = sampleinfo,
@@ -289,6 +294,24 @@ tpm <- txi$abundance #asign list of TPM values to tpm variable
 write.csv(tpm, file="tpm_values_abundance.csv",quote=FALSE)
 
 ```
+
+
+we can count the number of reads for each sample and print in the console
+
+```{r}
+
+for(i in 1:12) {
+  
+   print(sampleinfo$run[i])
+        print(sum(assay(dds)[,i]))
+        cat("\n")
+}
+
+
+```
+
+
+
 
 Saving in CSV. Can be used in GOrilla
 ```{r}
