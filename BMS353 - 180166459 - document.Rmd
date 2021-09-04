@@ -48,7 +48,7 @@ In this report we will analyze data for a research study that covers the followi
 *METHODS*
 
 
-|Sample no. | Condition |
+|Sample number | Condition |
 |-------:|:------|
 | 4   | naive|
 | 4 | 2h post-perfusion |
@@ -296,7 +296,7 @@ write.csv(tpm, file="tpm_values_abundance.csv",quote=FALSE)
 ```
 
 
-we can count the number of reads for each sample and print in the console
+we can count the number of reads for each sample and print in the console. This can be written in a csv file.
 
 ```{r}
 
@@ -306,32 +306,47 @@ for(i in 1:12) {
         print(sum(assay(dds)[,i]))
         cat("\n")
 }
+summaryReads <- colSums(assay(dds))
 
+write.csv(summaryReads,  file="summary_number_of_reads.csv", quote = FALSE, col.names = TRUE) # how to remove 1 and x (row 2 in excel?)
+readAddHeader <-read.csv("summary_number_of_reads.csv", header =FALSE) 
+colnames(readAddHeader) <- c("Sample", "rawcount")
+
+write.csv(readAddHeader,  file="summary_number_of_reads.csv", quote = FALSE)
 
 ```
 
+This can be plotted into bar chart
+
+```{r}
+
+library(ggplot2)
+
+ggplot(data=readAddHeader) + geom_bar(aes(x=readAddHeader$Sample, fill=readAddHeader$rawcount)) + geom_abline(aes(intercept=0,slope=1,color="Line description"),size=2.5,show_guide=TRUE) + guides(fill = guide_legend(override.aes = list(linetype = 0), title="[TITLE OF FILL]"), 
+             color = guide_legend(title="[TITLE OF LINE]")) + scale_color_manual(values="darkorchid4")
+```
 
 
 
 Saving in CSV. Can be used in GOrilla
 ```{r}
-library(readr)
-library(dplyr)
+# library(readr)
+# library(dplyr)
+# 
+# quantFile <- read_tsv(file = 'salmon_quant/SRR7457551/quant.sf')
+# write.csv(quantFile, sep=",", file = 'Salmon outputs converted into CSV/SRR7457551.csv')
+# 
+# tx2gene <- dplyr:::select(quants, Name, GENEID)
+# head(tx2gene)
+# 
+# any(is.na(tx2gene$GENEID))
+# 
+# tx2gene <- filter(tx2gene, !is.na(GENEID))
+# # write.table(quantFile, file="", quote=TRUE, sep=",", row.names=TRUE)
+# ```
 
-quantFile <- read_tsv(file = 'salmon_quant/SRR7457551/quant.sf')
-write.csv(quantFile, sep=",", file = 'Salmon outputs converted into CSV/SRR7457551.csv')
 
-tx2gene <- dplyr:::select(quants, Name, GENEID)
-head(tx2gene)
-
-any(is.na(tx2gene$GENEID))
-
-tx2gene <- filter(tx2gene, !is.na(GENEID))
-# write.table(quantFile, file="", quote=TRUE, sep=",", row.names=TRUE)
 ```
-
-
-
 ```{r}
 library(readr)
 library(ggplot2)
@@ -383,18 +398,18 @@ text.p <- ggparagraph(text = text, face = "italic", size = 11, color = "black")
 
 library(ggplot2)
 library(data.table)
+# I can't do overlapping of ggplot2
 
-
-quantFile_53 <- read_tsv(file = 'salmon_quant/SRR7457553/quant.sf') #naive sample
-
-quantFile_51 <- read_tsv(file = 'salmon_quant/SRR7457551/quant.sf') #2hpost-perfusion sample
-
-
-plotVar <- ggplot(quantFile_51, aes(x = quantFile_51$TPM, y = quantFile_51$Length)) +
-  geom_point() + ggplot(quantFile_53, aes(x = quantFile_53$TPM, y = quantFile_53$Length)) + geom_point()
-plotVar + theme_bw()
-
-plotVar + scale_x_continuous(trans='log10')
+# quantFile_53 <- read_tsv(file = 'salmon_quant/SRR7457553/quant.sf') #naive sample
+# 
+# quantFile_51 <- read_tsv(file = 'salmon_quant/SRR7457551/quant.sf') #2hpost-perfusion sample
+# 
+# 
+# plotVar <- ggplot(quantFile_51, aes(x = quantFile_51$TPM, y = quantFile_51$Length)) +
+#   geom_point() + ggplot(quantFile_53, aes(x = quantFile_53$TPM, y = quantFile_53$Length)) + geom_point()
+# plotVar + theme_bw()
+# 
+# plotVar + scale_x_continuous(trans='log10')
 
 
 # geom_point() + geom_point(data, color = "red") # re-define data and overwrite top layer inheritance
