@@ -4,19 +4,20 @@ author: '180166459'
 date: "2/8/2021"
 output:
   word_document: default
+  
 ---
-```{r echo = FALSE, eval = FALSE}
+```{r echo = FALSE, eval = FALSE, message = FALSE, warning=FALSE}
 version #check version of RStudio - this is relevant for packages 
 ```
 
 ```{r setup, include=FALSE}
 ```
 
-```{r setup, include=FALSE}
+```{r setup, include=FALSE, warning = FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r echo = FALSE, eval = FALSE}
+```{r echo = FALSE, eval = FALSE, message = FALSE, warning=FALSE}
 #Clear Workspace
 rm(list = ls(all.names = TRUE)) # clear all objects includes hidden objects.
 gc() #frees up memory and reports the memory usage
@@ -41,7 +42,7 @@ When you click the **Knit** button a document will be generated that includes bo
 
 **INTRODUCTION**
 
-! [Alt text] (Users\Andr\Documents\BMS353-Alveolar-Macrophages---RNA-seq-dataset\images\image1macrophages.jpg)
+! [Alt text] (images\image1macrophages.jpg)
 
 In this report we will analyze data for a research study that covers the following topic: Alveolar Macrophages after Murine Lung Transplant. For this we have the following resources provided:
 
@@ -63,6 +64,8 @@ In this report we will analyze data for a research study that covers the followi
 * tx2gene.csv
 
 
+
+
 The project name BMS353-Alveolar-Macrophages---RNA-seq-dataset with all files and the code are available on github in a repository:
 
 [Github](https://github.com/IoanaAndra/BMS353-Alveolar-Macrophages---RNA-seq-dataset)
@@ -79,21 +82,20 @@ Every chunk of code can be name like this:
 
 ```
 
-Installing packages in R
+Installing all packages necessary for this project in R. 
 
-```{r eval = FALSE, tidy =FALSE}
+```{r eval = FALSE, tidy = FALSE, message = FALSE, echo = 1:6, warning=FALSE}
 #SECTION FOR PACKAGES
 #installing all necessary packages
 # IF using same R version (4.0.3) and have all packages installed already, all lines of this section can remain commented 
-
  
 # install.packages("readr")
-# install.packages("ggplot2")
+# install.packages("ggplot2") #*
 # install.packages("dplyr")
 # install.packages("learnr")
 # install.packages("stringi")
 # install.packages("tidyverse")
-install.packages("ggpubr")
+# install.packages("ggpubr")
 # if (!requireNamespace("BiocManager", quietly = TRUE))     # installing tximport
 #     install.packages("BiocManager")
 # 
@@ -102,11 +104,12 @@ install.packages("ggpubr")
 # install.packages("jsonlite")
 # BiocManager::install("GenomicFeatures")
 
-BiocManager::install("S4Vectors")
-BiocManager::install("stats4")
-BiocManager::install("BiocGenerics")
+# BiocManager::install("S4Vectors")
+# BiocManager::install("stats4")
+# BiocManager::install("BiocGenerics")
 
-
+# install.packages("reticulate")     #to integrate Python code with R code
+#install.packages("DiagrammeR") #works with html output
 
 install.packages() #check installed packages. This can be seen also in Packages tab
 
@@ -115,13 +118,15 @@ install.packages() #check installed packages. This can be seen also in Packages 
 # update.packages(ask = FALSE) #update installed packages without asking permission from user
 
 ```
+*All code is visible in Rmd file.
+
 
 CSV and TSV file formats can be stored in variables and display first row of them using head()
 
 With head, we display first rows of data tx2gene.csv and a quant.sf
 
 tx2gene.csv is the transcripts and genes relationship table file
-```{r Read tx2gene.csv, tidy =FALSE, collapse = FALSE} 
+```{r Read tx2gene.csv, tidy =FALSE, collapse = FALSE, message = FALSE, warning=FALSE} 
 library(readr)
 
 dataPath <- "tx2gene.csv" #asigning value which represent path of file
@@ -136,10 +141,14 @@ head(quantFile)
 Name represents in quant. sf the TXNAME found in tx2gene.csv. But tx2gene.csv contains all 12 samples (in order ...51-...62)
 
 
+**METHODS**
+
+
+
 **ANALYSIS**
 
 Sample txt. presents the full experimental design that was followed. 12 columns for all 12 samples that are found in a salmon output format file that can be further read and accessed using read_tsv
-```{r tidy = FALSE, collapse = FALSE}
+```{r tidy = FALSE, collapse = FALSE, message = FALSE, warning=FALSE}
 
 
 library(tximport)
@@ -187,7 +196,7 @@ max(quants$TPM)
 After asigning to quants variable the files
 
 
-```{r tidy = FALSE, collapse = FALSE}
+```{r tidy = FALSE, collapse = FALSE, message = FALSE, warning=FALSE}
 rpk <- quants$NumReads / quants$EffectiveLength
 scale_factor <- sum(rpk) / 1e6
 tpm <- rpk / scale_factor
@@ -222,7 +231,7 @@ head(tx_map)
 
 
 
-``` {r eval = FALSE, tidy = FALSE}
+``` {r eval = FALSE, tidy = FALSE, message = FALSE, warning=FALSE}
 #use tximport package
 
 library(tximport)
@@ -264,8 +273,8 @@ txi <- tximport(quant_files,type="salmon",tx2gene = tx2gene)
 
 
 ```
-Summarising
-```{r}
+CHECK OUTPUT HERE Summarising
+```{r, message = FALSE, eval = c(0,1), warning=FALSE}
 library(readr)
 library(dplyr)
 
@@ -277,7 +286,7 @@ write.table(colnames(quants), col.names=FALSE)
 
 Next, testing quality assesment for the raw reads of gene transcripts that were imported with tximport.
 
-```{r}
+```{r message = FALSE, echo = FALSE, warning=FALSE}
 library(DESeq2)
 library(S4Vectors)
 library(stats4)
@@ -298,7 +307,7 @@ write.csv(tpm, file="tpm_values_abundance.csv",quote=FALSE)
 
 we can count the number of reads for each sample and print in the console. This can be written in a csv file.
 
-```{r}
+```{r message = FALSE, echo = FALSE, warning=FALSE}
 
 for(i in 1:12) {
   
@@ -318,7 +327,7 @@ write.csv(readAddHeader,  file="summary_number_of_reads.csv", quote = FALSE)
 
 This can be plotted into bar chart
 
-```{r}
+```{r message = FALSE, echo = FALSE, warning=FALSE}
 
 library(ggplot2)
 
@@ -329,7 +338,7 @@ ggplot(data=readAddHeader) + geom_bar(aes(x=readAddHeader$Sample, fill=readAddHe
 
 
 Saving in CSV. Can be used in GOrilla
-```{r}
+```{r message = FALSE, echo = FALSE, warning=FALSE}
 # library(readr)
 # library(dplyr)
 # 
@@ -347,7 +356,7 @@ Saving in CSV. Can be used in GOrilla
 
 
 ```
-```{r}
+```{r message = FALSE, echo = FALSE, warning=FALSE, message = FALSE}
 library(readr)
 library(ggplot2)
 library(data.table)
@@ -366,11 +375,11 @@ plotVar + theme_bw() + scale_x_continuous(trans='log10')
 # mean(quants$Length) mean(quants$EffectiveLength)
 
 
-text <- paste("text for this plot", "newline", sep = " ")
-
-text.p <- ggparagraph(text = text, face = "italic", size = 11, color = "black")
+# text <- paste("text for this plot", "newline", sep = " ")
+# 
+# text.p <- ggparagraph(text = text, face = "italic", size = 11, color = "black")
 ```
-```{r}
+```{r message = FALSE, echo = FALSE, warning=FALSE}
 library(readr)
 library(ggplot2)
 library(data.table)
@@ -394,7 +403,7 @@ text.p <- ggparagraph(text = text, face = "italic", size = 11, color = "black")
 
 
 
-```{r}
+```{r message = FALSE, echo = FALSE, warning=FALSE}
 
 library(ggplot2)
 library(data.table)
@@ -416,7 +425,7 @@ library(data.table)
 ```
 
 
-```{r eval = FALSE, echo = FALSE}
+```{r eval = FALSE, echo = FALSE, message = FALSE, warning=FALSE}
 
 
 rlang::last_error() # to check last error
@@ -424,6 +433,18 @@ rlang::last_error() # to check last error
 
 ```
 
+
+
+
+
+```{r eval = FALSE, echo = FALSE, message = FALSE, warning=FALSE}
+
+library(reticulate)
+# change the following to point to the desired path on your system
+use_python('/Users/Andr/anaconda3/bin/python')
+# prints the python configuration
+py_config()
+```
 
 
 

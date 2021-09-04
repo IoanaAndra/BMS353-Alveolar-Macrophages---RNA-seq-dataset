@@ -1,23 +1,23 @@
 ---
-title: "BMS353 for html"
-author: "Ioana-Andra Popovici"
-date: "9/3/2021"
-runtime: shiny
-output: html_document
-css: "BMS353.css"
+title: 'Alveolar Macrophages after Murine Lung Transplant '
+author: '180166459'
+date: "2/8/2021"
+
+output:
+  html_document
 ---
-```{r echo = FALSE, eval = FALSE}
+```{r echo = FALSE, eval = FALSE, message = FALSE, warning=FALSE}
 version #check version of RStudio - this is relevant for packages 
 ```
 
 ```{r setup, include=FALSE}
 ```
 
-```{r setup, include=FALSE}
+```{r setup, include=FALSE, warning = FALSE, cache.lazy = FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r echo = FALSE, eval = FALSE}
+```{r echo = FALSE, eval = FALSE, message = FALSE, warning=FALSE}
 #Clear Workspace
 rm(list = ls(all.names = TRUE)) # clear all objects includes hidden objects.
 gc() #frees up memory and reports the memory usage
@@ -42,9 +42,18 @@ When you click the **Knit** button a document will be generated that includes bo
 
 **INTRODUCTION**
 
-! [Alt text] (Users\Andr\Documents\BMS353-Alveolar-Macrophages---RNA-seq-dataset\images\image1macrophages.jpg)
+! [Alt text] (images\image1macrophages.jpg)
 
 In this report we will analyze data for a research study that covers the following topic: Alveolar Macrophages after Murine Lung Transplant. For this we have the following resources provided:
+
+*METHODS*
+
+
+|Sample number | Condition |
+|-------:|:------|
+| 4   | naive|
+| 4 | 2h post-perfusion |
+| 4 | 24 h post-perfusion |
 
 [GEO](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE116583)
 
@@ -53,6 +62,23 @@ In this report we will analyze data for a research study that covers the followi
 * meta_data
 * salmon-quant.sf files
 * tx2gene.csv
+
+```{r}
+# library(DiagrammeR)
+DiagrammeR::grViz("digraph {
+  graph [layout = dot, rankdir = TB]
+  
+  node [shape = rectangle]        
+  rec1 [label = 'Step 1. Wake up']
+  rec2 [label = 'Step 2. Write code']
+  rec3 [label =  'Step 3. ???']
+  rec4 [label = 'Step 4. PROFIT']
+  
+  # edge definitions with the node IDs
+  rec1 -> rec2 -> rec3 -> rec4
+  }",
+  height = 500)
+```
 
 
 The project name BMS353-Alveolar-Macrophages---RNA-seq-dataset with all files and the code are available on github in a repository:
@@ -71,92 +97,95 @@ Every chunk of code can be name like this:
 
 ```
 
-Installing packages in R
+Installing all packages necessary for this project in R. 
 
-```{r eval = FALSE, tidy =FALSE}
+```{r eval = FALSE, tidy = FALSE, message = FALSE, echo = 1:6, warning=FALSE}
 #SECTION FOR PACKAGES
 #installing all necessary packages
 # IF using same R version (4.0.3) and have all packages installed already, all lines of this section can remain commented 
-
  
 # install.packages("readr")
-# install.packages("ggplot2")
+# install.packages("ggplot2") #*
 # install.packages("dplyr")
 # install.packages("learnr")
 # install.packages("stringi")
 # install.packages("tidyverse")
-# install.packages("jsonlite")
-# install.packages("DESeq2")
-
-if (!requireNamespace("BiocManager", quietly = TRUE))     # installing tximport
-    install.packages("BiocManager")
+# install.packages("ggpubr")
+# if (!requireNamespace("BiocManager", quietly = TRUE))     # installing tximport
+#     install.packages("BiocManager")
 # 
 # BiocManager::install("tximport")
 
-
+# install.packages("jsonlite")
 # BiocManager::install("GenomicFeatures")
 
+# BiocManager::install("S4Vectors")
+# BiocManager::install("stats4")
+# BiocManager::install("BiocGenerics")
 
-
+# install.packages("reticulate")     #to integrate Python code with R code
+install.packages("DiagrammeR")
 
 install.packages() #check installed packages. This can be seen also in Packages tab
 
-old.packages() 
+# old.packages() 
 
 # update.packages(ask = FALSE) #update installed packages without asking permission from user
 
 ```
+*All code is visible in Rmd file.
 
-Reading tx2gene file using read.csv()
 
-With head, we display first rows of data
-```{r Read tx2gene.csv, tidy =FALSE, collapse = FALSE} 
+CSV and TSV file formats can be stored in variables and display first row of them using head()
+
+With head, we display first rows of data tx2gene.csv and a quant.sf
+
+tx2gene.csv is the transcripts and genes relationship table file
+```{r Read tx2gene.csv, tidy =FALSE, collapse = FALSE, message = FALSE, warning=FALSE} 
 library(readr)
-tx2GeneFile <- read.csv(file = 'tx2gene.csv')
-head(tx2GeneFile)
-#view(tx2GeneFile)
-```
-
-
-
-We are going to display tx2gene.csv
-
-```{r tidy =FALSE, collapse = FALSE}
-
-library(readr) #package used to import spreadsheets in R
 
 dataPath <- "tx2gene.csv" #asigning value which represent path of file
 
 file.exists(dataPath) #file.exists() return TRUE id file can be found or FALSE if it is not found
-
-
-dataGenes <- read.csv(dataPath) #storing content of csv file into variable data_genes
-
-
-
-#check data frame that we created
-
- # testData <- read_table(dataGenes) ##*******Error: `file` must be a string, raw vector or a connection.
-# 
-# View(test)  #view() - invoking a spreadsheet style data viewer nb
-# 
-# 
-# head(dataGenes)
-
+tx2GeneFile <- read.csv(file = 'tx2gene.csv') #file with delimiter ","
+quantFile <- read_tsv(file = 'salmon_quant/SRR7457551/quant.sf') #file with delimiter "\t"
+head(tx2GeneFile)
+head(quantFile)
+#view(tx2GeneFile)
 ```
+Name represents in quant. sf the TXNAME found in tx2gene.csv. But tx2gene.csv contains all 12 samples (in order ...51-...62)
+
+
+**METHODS**
+
+```{r echo = FALSE, tidy =FALSE, collapse = FALSE, message = FALSE, warning=FALSE}
+DiagrammeR::grViz("digraph {
+  graph [layout = dot, rankdir = TB]
+  
+  node [shape = rectangle]        
+  rec1 [label = 'Step 1. Raw data']
+  rec2 [label = 'Step 2. Quality assesment']
+  rec3 [label =  'Step 3. Differential expression']
+  rec4 [label = 'Step 4. Plot data']
+  
+  # edge definitions with the node IDs
+  rec1 -> rec2 -> rec3 -> rec4
+  }",
+  height = 500)
+```
+
 
 **ANALYSIS**
 
 Sample txt. presents the full experimental design that was followed. 12 columns for all 12 samples that are found in a salmon output format file that can be further read and accessed using read_tsv
-
-```{r tidy =FALSE, collapse = FALSE}
+```{r tidy = FALSE, collapse = FALSE, message = FALSE, warning=FALSE}
 
 
 library(tximport)
 library(readr)
 library(dplyr)
 # Read the sample information into R
-sampleinfo <- read.delim("meta_data/sampleInfo.txt")
+sampleinfo <- read.delim("meta_data/sampleInfo.txt") #reads in delimited text file
 View(sampleinfo)    # view sampleinfo.txt in a new tab
 #glimpse(sampleinfo)
 sampleinfo
@@ -188,6 +217,8 @@ head(quants)
 tail(quants, n = 3)
 
 max(quants$TPM)
+
+
  
 ```
 
@@ -195,7 +226,7 @@ max(quants$TPM)
 After asigning to quants variable the files
 
 
-```{r tidy = FALSE, collapse = FALSE}
+```{r tidy = FALSE, collapse = FALSE, message = FALSE, warning=FALSE}
 rpk <- quants$NumReads / quants$EffectiveLength
 scale_factor <- sum(rpk) / 1e6
 tpm <- rpk / scale_factor
@@ -230,12 +261,12 @@ head(tx_map)
 
 
 
-``` {r eval = FALSE, tidy = FALSE}
+``` {r eval = FALSE, tidy = FALSE, message = FALSE, warning=FALSE}
 #use tximport package
 
 library(tximport)
 tx2gene <- tx_map
-write.csv(tx2gene,file="tx2gene.csv",row.names = FALSE,quote=FALSE)
+# write.csv(tx2gene,file="tx2gene.csv",row.names = FALSE,quote=FALSE)
 txi <- tximport(quant_files,type="salmon",tx2gene = tx2gene)
 
 table(tx_map$TXNAME %in% quants$Name)
@@ -243,16 +274,215 @@ table(tx_map$TXNAME %in% quants$Name)
 tx2gene <- tx_map
 txi <- tximport(quant_files,type="salmon",tx2gene = tx2gene,ignoreTxVersion = TRUE)
 
-head(txi)
+names(txi)
+
+head(txi$counts) 
+
+all(rownames(sampleinfo) == colnames(txi$counts))
+
+library(tidyr)
+library(dplyr)
+
+quants <- separate(quants, Name, c("TXNAME","Number"),remove = FALSE)
+head(quants)
+
+
+quants <- left_join(quants, tx_map, by="TXNAME")
+head(quants)
+
+tx2gene <- dplyr:::select(quants, Name, GENEID)
+head(tx2gene)
+
+any(is.na(tx2gene$GENEID))
+
+tx2gene <- filter(tx2gene, !is.na(GENEID))
+
+library(tximport)
+txi <- tximport(quant_files,type="salmon",tx2gene = tx2gene)
+
+
 
 ```
-```{r}
+CHECK OUTPUT HERE Summarising
+```{r, message = FALSE, eval = c(0,1), warning=FALSE}
+library(readr)
+library(dplyr)
+
+head(quants)
+summarise(quants, min(quants$Length), max(quants$Length), min(quants$EffectiveLength),max(quants$EffectiveLength)) #summarises in a table values that we select from object 
+
+write.table(colnames(quants), col.names=FALSE)
+```
+
+Next, testing quality assesment for the raw reads of gene transcripts that were imported with tximport.
+
+```{r message = FALSE, echo = FALSE, warning=FALSE}
+library(DESeq2)
+library(S4Vectors)
+library(stats4)
+library(BiocGenerics)
+
+dds <- DESeqDataSetFromTximport(txi, 
+                                colData = sampleinfo,
+                                design <- ~condition)
+
+
+colData(dds)
+
+tpm <- txi$abundance #asign list of TPM values to tpm variable
+write.csv(tpm, file="tpm_values_abundance.csv",quote=FALSE)
 
 ```
 
-```{r}
-library("DESeq2")
+
+we can count the number of reads for each sample and print in the console. This can be written in a csv file.
+
+```{r message = FALSE, echo = FALSE, warning=FALSE}
+
+for(i in 1:12) {
+  
+   print(sampleinfo$run[i])
+        print(sum(assay(dds)[,i]))
+        cat("\n")
+}
+summaryReads <- colSums(assay(dds))
+
+write.csv(summaryReads,  file="summary_number_of_reads.csv", quote = FALSE, col.names = TRUE) # how to remove 1 and x (row 2 in excel?)
+readAddHeader <-read.csv("summary_number_of_reads.csv", header =FALSE) 
+colnames(readAddHeader) <- c("Sample", "rawcount")
+
+write.csv(readAddHeader,  file="summary_number_of_reads.csv", quote = FALSE)
+
 ```
+
+This can be plotted into bar chart
+
+```{r message = FALSE, echo = FALSE, warning=FALSE}
+
+library(ggplot2)
+
+ggplot(data=readAddHeader) + geom_bar(aes(x=readAddHeader$Sample, fill=readAddHeader$rawcount)) + geom_abline(aes(intercept=0,slope=1,color="Line description"),size=2.5,show_guide=TRUE) + guides(fill = guide_legend(override.aes = list(linetype = 0), title="[TITLE OF FILL]"), 
+             color = guide_legend(title="[TITLE OF LINE]")) + scale_color_manual(values="darkorchid4")
+```
+
+
+
+Saving in CSV. Can be used in GOrilla
+```{r message = FALSE, echo = FALSE, warning=FALSE}
+# library(readr)
+# library(dplyr)
+# 
+# quantFile <- read_tsv(file = 'salmon_quant/SRR7457551/quant.sf')
+# write.csv(quantFile, sep=",", file = 'Salmon outputs converted into CSV/SRR7457551.csv')
+# 
+# tx2gene <- dplyr:::select(quants, Name, GENEID)
+# head(tx2gene)
+# 
+# any(is.na(tx2gene$GENEID))
+# 
+# tx2gene <- filter(tx2gene, !is.na(GENEID))
+# # write.table(quantFile, file="", quote=TRUE, sep=",", row.names=TRUE)
+# ```
+
+
+```
+```{r message = FALSE, echo = FALSE, warning=FALSE, message = FALSE}
+library(readr)
+library(ggplot2)
+library(data.table)
+
+# head(quants)
+
+quantFile_51 <- read_tsv(file = 'salmon_quant/SRR7457551/quant.sf', show_col_types = FALSE)
+
+
+plotVar <- ggplot(quantFile_51, aes(x = quantFile_51$TPM, y = quantFile_51$Length)) +
+  geom_point()
+plotVar + theme_bw() + scale_x_continuous(trans='log10')
+
+# plotVar + theme_minimal()
+
+# mean(quants$Length) mean(quants$EffectiveLength)
+
+
+# text <- paste("text for this plot", "newline", sep = " ")
+# 
+# text.p <- ggparagraph(text = text, face = "italic", size = 11, color = "black")
+```
+```{r message = FALSE, echo = FALSE, warning=FALSE}
+library(readr)
+library(ggplot2)
+library(data.table)
+library(ggpubr)
+
+quantFile_53 <- read_tsv(file = 'salmon_quant/SRR7457553/quant.sf', show_col_types = FALSE)
+
+
+plotVar2 <- ggplot(quantFile_53, aes(x = quantFile_53$TPM, y = quantFile_53$Length)) +
+  geom_point()
+
+# plotvar2 + theme_bw() + scale_x_continuous(trans='log10')     #Error: object 'plotvar2' not found
+# 
+# #adding legend
+
+text <- paste("text for this plot", "newline", sep = " ")
+
+text.p <- ggparagraph(text = text, face = "italic", size = 11, color = "black")
+```
+
+
+
+
+```{r message = FALSE, echo = FALSE, warning=FALSE}
+
+library(ggplot2)
+library(data.table)
+# I can't do overlapping of ggplot2
+
+# quantFile_53 <- read_tsv(file = 'salmon_quant/SRR7457553/quant.sf') #naive sample
+# 
+# quantFile_51 <- read_tsv(file = 'salmon_quant/SRR7457551/quant.sf') #2hpost-perfusion sample
+# 
+# 
+# plotVar <- ggplot(quantFile_51, aes(x = quantFile_51$TPM, y = quantFile_51$Length)) +
+#   geom_point() + ggplot(quantFile_53, aes(x = quantFile_53$TPM, y = quantFile_53$Length)) + geom_point()
+# plotVar + theme_bw()
+# 
+# plotVar + scale_x_continuous(trans='log10')
+
+
+# geom_point() + geom_point(data, color = "red") # re-define data and overwrite top layer inheritance
+```
+
+
+```{r eval = FALSE, echo = FALSE, message = FALSE, warning=FALSE}
+
+
+rlang::last_error() # to check last error
+
+
+```
+
+
+
+
+
+```{r eval = FALSE, echo = FALSE, message = FALSE, warning=FALSE}
+
+library(reticulate)
+# change the following to point to the desired path on your system
+use_python('/Users/Andr/anaconda3/bin/python')
+# prints the python configuration
+py_config()
+```
+
+
+
+library(readr)
+library(dplyr)
+
+quantFile <- read_tsv(file = 'salmon_quant/SRR7457551/quant.sf')
+
 
 
 **CONCLUSIONS**
@@ -262,4 +492,3 @@ library("DESeq2")
 
 
 *References*
-
