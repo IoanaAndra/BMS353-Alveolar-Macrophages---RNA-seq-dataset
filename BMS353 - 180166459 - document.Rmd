@@ -222,7 +222,7 @@ max(quants$TPM)
 
 After asigning to quants variable the files
 
-
+VEZI DACA ACEASTA BUCATA DE PLOT VINE DUPA PCA CU vsd
 ```{r tidy = FALSE, collapse = FALSE, message = FALSE, warning=FALSE}
 rpk <- quants$NumReads / quants$EffectiveLength
 scale_factor <- sum(rpk) / 1e6
@@ -331,6 +331,9 @@ colData(dds)
 tpm <- txi$abundance #asign list of TPM values to tpm variable
 write.csv(tpm, file="tpm_values_abundance.csv",quote=FALSE)
 
+dir.create("Robjects/",showWarnings = FALSE)  #to save pre-processing data
+saveRDS(dds, file="Robjects/dds.rds")
+
 ```
 
 
@@ -380,8 +383,8 @@ head(is_expressed)
 library(dplyr)
 library(ggplot2)
 sampleinfo %>% mutate(MillionsOfReads = colSums(assay(dds))/1e6) %>% 
-  ggplot(aes(x = sampleinfo$run, y = MillionsOfReads)) + geom_col(fill="darkgoldenrod2") + ggtitle ("Number of milliions of reads for each sample") +  labs (x = "Samples") + theme_bw() 
-```
+  ggplot(aes(x = sampleinfo$run, y = MillionsOfReads)) + geom_col(fill="darkgoldenrod2") + ggtitle ("Number of milliions of reads for each sample") +  labs (x = "Samples") + theme_bw() + geom_label(aes(label = sampleinfo$name))
+``` 
 
 
 ```{r eval = FALSE}
@@ -427,7 +430,7 @@ vsd <- vst(dds,blind=TRUE)
 # normalising dristibution
 boxplot(assay(vsd), xlab="Samples", ylab="Log2 millions of counts",las=2,main="Normalised Distributions")
 # 
-abline(h=median(assay(vsd)), col="red")
+abline(h=median(assay(vsd)), col="red") # add straight line to plot (linear regression)
 ```
 
 
@@ -445,15 +448,50 @@ pheatmap(sampleDistMatrix,
          col=colors, main = "Gene heatmap")
 
 ```
-
+```{r}
+assay(vsd)
+```
 
 
 
 ```{r message = FALSE, echo = FALSE, warning=FALSE, fig.cap=" put here caption"}
-plotPCA(vsd,intgroup="time")
+plotPCA(vsd,intgroup="time") + theme_bw() + ggtitle("title")
+```
+
+
+```{r message = FALSE, echo = FALSE, warning=FALSE, fig.cap=" put here caption"}
+plotPCA(vsd,intgroup="time") + theme_bw() + geom_label(aes(label = sampleinfo$name)) + ggtitle("title") #same as above but with labels
 ```
 REVEZI AICI DIN TUTORIAL 
 https://sbc.shef.ac.uk/workshops/2020-02-13-rnaseq-r/rna-seq-preprocessing.nb.html#resources_and_data_files
+
+
+
+```{r message = FALSE, echo = FALSE, warning=FALSE, fig.cap=" put here caption"}
+ plotPCA(vsd,intgroup= c("time","condition")) + theme_bw() + ggtitle("title")  
+
+```
+
+
+
+
+
+```{r}
+assay(vsd) %>% 
+  data.frame %>% 
+  tibble::rownames_to_column("Gene")
+```
+SEE IF YOU DO STATISTICS WITH vsd (above)
+
+
+
+
+
+
+*3. Differential Expression*
+
+
+
 ```{r}
 # 
 # sampleinfo_corrected <- mutate(sampleinfo, time = str_to_lower(time)) %>% 
@@ -594,15 +632,16 @@ library(ggplot2)
 library(data.table)
 # I can't do overlapping of ggplot2
 
-# quantFile_53 <- read_tsv(file = 'salmon_quant/SRR7457553/quant.sf') #naive sample
-# 
-# quantFile_51 <- read_tsv(file = 'salmon_quant/SRR7457551/quant.sf') #2hpost-perfusion sample
-# 
-# 
-# plotVar <- ggplot(quantFile_51, aes(x = quantFile_51$TPM, y = quantFile_51$Length)) +
-#   geom_point(color = ) + ggplot(quantFile_53, aes(x = quantFile_53$TPM, y = quantFile_53$Length)) + geom_point()
+quantFile_53 <- read_tsv(file = 'salmon_quant/SRR7457553/quant.sf') #naive sample
+
+quantFile_51 <- read_tsv(file = 'salmon_quant/SRR7457551/quant.sf') #2hpost-perfusion sample
+
+
+plotVar <- ggplot(quantFile_51, aes(x = quantFile_51$TPM, y = quantFile_51$Length)) +
+  geom_point() 
+
 # plotVar + theme_bw()
-# 
+
 # plotVar + scale_x_continuous(trans='log10')
 
 
