@@ -15,6 +15,8 @@ version #check version of RStudio - this is relevant for packages
 
 ```{r setup, include=FALSE, warning = FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(message = FALSE)
+knitr::opts_chunk$set(warning = FALSE)
 ```
 
 ```{r echo = FALSE, eval = FALSE, message = FALSE, warning=FALSE}
@@ -23,6 +25,15 @@ rm(list = ls(all.names = TRUE)) # clear all objects includes hidden objects.
 gc() #frees up memory and reports the memory usage
 ```
 
+
+```{r eval = FALSE, echo = FALSE, message = FALSE, warning=FALSE}
+
+library(reticulate)
+# change the following to point to the desired path on your system
+use_python('/Users/Andr/anaconda3/bin/python')
+# prints the python configuration
+py_config()
+```
 ## R Markdown
 
 # **BMS353**
@@ -32,8 +43,6 @@ gc() #frees up memory and reports the memory usage
 **Alveolar Macrophages after Murine Lung Transplant -
 (mouse)**
 
-FOR NOT INCLUDING R CODE IN REPORT: {r echo = FALSE}
-FOR NOT INCLUDING OUTPUT/CONSOLE PRINT in REPORT: {r eval = FALSE}
 
 This is an R Markdown document. Markdown is a simple formatting syntax.
 
@@ -42,7 +51,10 @@ When you click the **Knit** button a document will be generated that includes bo
 
 **INTRODUCTION**
 
-! [Alt text] (images\image1macrophages.jpg)
+
+ ```{r pressure, echo=FALSE, fig.cap="Figure 1 - Image that shows stained macrophage that is found in alveolar sac. Image is just informative but not necessarly relevant to this project", out.width = '100%'}
+ knitr::include_graphics("images/image1macrophages.jpg")
+ ```
 
 In this report we will analyze data for a research study that covers the following topic: Alveolar Macrophages after Murine Lung Transplant. For this we have the following resources provided:
 
@@ -107,7 +119,15 @@ Installing all packages necessary for this project in R.
 # BiocManager::install("S4Vectors")
 # BiocManager::install("stats4")
 # BiocManager::install("BiocGenerics")
-
+# BiocManager::install("pheatmap")
+# BiocManager::install("org.Mm.eg.db")
+# BiocManager::install("genefilter")
+# BiocManager::install("GEOquery")
+# BiocManager::install("limma")
+# BiocManager::install("biomaRt")
+# BiocManager::install("clusterProfiler")
+# BiocManager::install("pathview")
+# BiocManager::install("fgsea")
 # install.packages("reticulate")     #to integrate Python code with R code
 #install.packages("DiagrammeR") #works with html output
 
@@ -324,21 +344,132 @@ colnames(readAddHeader) <- c("Sample", "rawcount")
 write.csv(readAddHeader,  file="summary_number_of_reads.csv", quote = FALSE)
 
 ```
-
-This can be plotted into bar chart
-
-```{r message = FALSE, echo = FALSE, warning=FALSE}
-
-library(ggplot2)
-
-ggplot(data=readAddHeader) + geom_bar(aes(x=readAddHeader$Sample, fill=readAddHeader$rawcount)) + geom_abline(aes(intercept=0,slope=1,color="Line description"),size=2.5,show_guide=TRUE) + guides(fill = guide_legend(override.aes = list(linetype = 0), title="[TITLE OF FILL]"), 
-             color = guide_legend(title="[TITLE OF LINE]")) + scale_color_manual(values="darkorchid4")
+```{r}
+colSums(assay(dds))
 ```
 
 
 
-Saving in CSV. Can be used in GOrilla
+
+This can be plotted into bar chart
+
+```{r message = FALSE, echo = FALSE, warning=FALSE, fig.dim= c(8,5)}
+
+library(ggplot2)
+
+ggplot(data=readAddHeader) + geom_bar(aes(x=readAddHeader$rawcount, fill=readAddHeader$Sample)) + geom_abline(aes(intercept=0,slope=1,color="Line description"),size=2.5,show_guide=TRUE) + guides(fill = guide_legend(override.aes = list(linetype = 0), title="[TITLE OF FILL]"), 
+             color = guide_legend(title="Samples Legend")) + scale_color_manual(values="darkorchid4")
+
+ggplot(readAddHeader, aes(x = Sample, y = rawcount)) + geom_point()
+
+boxplot(colSums(assay(dds)))
+```
+
+```{r message = FALSE, echo = FALSE, warning=FALSE, results = c(0,2)}
+is_expressed <- assay(dds) >= 5
+head(is_expressed)
+
+```
+```{r fig.cap="Figure - Bar charts that show number of millions of reads for each of the 12 samples"}
+library(dplyr)
+library(ggplot2)
+sampleinfo %>% mutate(MillionsOfReads = colSums(assay(dds))/1e6) %>% 
+  ggplot(aes(x = sampleinfo$run, y = MillionsOfReads)) + geom_col(fill="darkgoldenrod2") + ggtitle ("Number of milliions of reads for each sample")
+```
+
+
+```{r eval = FALSE}
+print('Gene from row 3 expressed in this number of samples:')
+sum(is_expressed[3,])
+
+print('Gene from row 400 expressed in this number of samples:')
+sum(is_expressed[400,])
+```
+
+
+```{r}
+hist(rowSums(is_expressed),main="Number of samples a gene is expressed in",xlab="Sample Count")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ```{r message = FALSE, echo = FALSE, warning=FALSE}
+#Other attempts (not following the worlflow)
+#Saving in CSV. Can be used in GOrilla?
+
+
+
 # library(readr)
 # library(dplyr)
 # 
@@ -425,6 +556,9 @@ library(data.table)
 ```
 
 
+
+
+
 ```{r eval = FALSE, echo = FALSE, message = FALSE, warning=FALSE}
 
 
@@ -437,21 +571,10 @@ rlang::last_error() # to check last error
 
 
 
-```{r eval = FALSE, echo = FALSE, message = FALSE, warning=FALSE}
-
-library(reticulate)
-# change the following to point to the desired path on your system
-use_python('/Users/Andr/anaconda3/bin/python')
-# prints the python configuration
-py_config()
-```
 
 
 
-library(readr)
-library(dplyr)
 
-quantFile <- read_tsv(file = 'salmon_quant/SRR7457551/quant.sf')
 
 
 
