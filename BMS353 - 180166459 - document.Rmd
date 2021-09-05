@@ -58,8 +58,10 @@ When you click the **Knit** button a document will be generated that includes bo
 
 In this report we will analyze data for a research study that covers the following topic: Alveolar Macrophages after Murine Lung Transplant. For this we have the following resources provided:
 
+
 *METHODS*
 
+`````````````````````````````````````insert text from word
 
 |Sample number | Condition |
 |-------:|:------|
@@ -140,6 +142,12 @@ install.packages() #check installed packages. This can be seen also in Packages 
 *All code is visible in Rmd file.
 
 
+
+
+*ANALYSIS*
+
+**1. Import raw data (.csv and quant.sf files)* 
+
 CSV and TSV file formats can be stored in variables and display first row of them using head()
 
 With head, we display first rows of data tx2gene.csv and a quant.sf
@@ -160,11 +168,11 @@ head(quantFile)
 Name represents in quant. sf the TXNAME found in tx2gene.csv. But tx2gene.csv contains all 12 samples (in order ...51-...62)
 
 
-**METHODS**
 
 
+ 
 
-**ANALYSIS**
+
 
 Sample txt. presents the full experimental design that was followed. 12 columns for all 12 samples that are found in a salmon output format file that can be further read and accessed using read_tsv
 ```{r tidy = FALSE, collapse = FALSE, message = FALSE, warning=FALSE}
@@ -251,7 +259,7 @@ head(tx_map)
 
 
 ``` {r eval = FALSE, tidy = FALSE, message = FALSE, warning=FALSE}
-#use tximport package
+#use tximport package to import raw data for each of the 12 samples
 
 library(tximport)
 tx2gene <- tx_map
@@ -292,8 +300,8 @@ txi <- tximport(quant_files,type="salmon",tx2gene = tx2gene)
 
 
 ```
-CHECK OUTPUT HERE Summarising
-```{r, message = FALSE, eval = c(0,1), warning=FALSE}
+Summarising
+```{r, message = FALSE, echo = false, warning=FALSE}
 library(readr)
 library(dplyr)
 
@@ -302,6 +310,8 @@ summarise(quants, min(quants$Length), max(quants$Length), min(quants$EffectiveLe
 
 write.table(colnames(quants), col.names=FALSE)
 ```
+
+*2. Quality assesment*
 
 Next, testing quality assesment for the raw reads of gene transcripts that were imported with tximport.
 
