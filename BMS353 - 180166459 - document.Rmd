@@ -29,7 +29,7 @@ gc() #frees up memory and reports the memory usage
 ```{r eval = FALSE, echo = FALSE, message = FALSE, warning=FALSE}
 
 library(reticulate)
-# change the following to point to the desired path on your system
+# path on the system chosen by default
 use_python('/Users/Andr/anaconda3/bin/python')
 # prints the python configuration
 py_config()
@@ -63,18 +63,17 @@ In this report we will analyze data for a research study that covers the followi
 
 |Sample number | Condition |
 |-------:|:------|
-| 4   | naive|
+| `r 2+2`   | naive|
 | 4 | 2h post-perfusion |
 | 4 | 24 h post-perfusion |
 
-[GEO](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE116583)
+[GSE116583](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE116583)
 
 [Google drive](https://drive.google.com/drive/folders/1AqYi0Ps5t5xo6XYWXjOtO6eDOMpT1ADE) - Google drive folder with the following content:
 
 * meta_data
 * salmon-quant.sf files
 * tx2gene.csv
-
 
 
 
@@ -344,37 +343,34 @@ colnames(readAddHeader) <- c("Sample", "rawcount")
 write.csv(readAddHeader,  file="summary_number_of_reads.csv", quote = FALSE)
 
 ```
-```{r}
-colSums(assay(dds))
+```{r message = FALSE, eval = FALSE}
+colSums(assay(dds)) # same as above but different output format
 ```
 
+This can be plotted into bar chart, scatterplot or boxplot
 
-
-
-This can be plotted into bar chart
-
-```{r message = FALSE, echo = FALSE, warning=FALSE, fig.dim= c(8,5)}
+```{r message = FALSE, echo = FALSE, warning=FALSE, fig.dim= c(8,5), fig.cap = "Plotting based on csv file attempts."}
 
 library(ggplot2)
 
 ggplot(data=readAddHeader) + geom_bar(aes(x=readAddHeader$rawcount, fill=readAddHeader$Sample)) + geom_abline(aes(intercept=0,slope=1,color="Line description"),size=2.5,show_guide=TRUE) + guides(fill = guide_legend(override.aes = list(linetype = 0), title="[TITLE OF FILL]"), 
              color = guide_legend(title="Samples Legend")) + scale_color_manual(values="darkorchid4")
 
-ggplot(readAddHeader, aes(x = Sample, y = rawcount)) + geom_point()
+ggplot(readAddHeader, aes(x = Sample, y = rawcount)) + geom_point() + ggtitle("visualise distribution for counts")
 
-boxplot(colSums(assay(dds)))
+
 ```
 
-```{r message = FALSE, echo = FALSE, warning=FALSE, results = c(0,2)}
+```{r message = FALSE, echo = FALSE, warning=FALSE, eval = FALSE}
 is_expressed <- assay(dds) >= 5
 head(is_expressed)
 
 ```
-```{r fig.cap="Figure - Bar charts that show number of millions of reads for each of the 12 samples"}
+```{r message = FALSE, echo = FALSE, warning=FALSE, fig.cap="Figure - Bar charts that show number of millions of reads for each of the 12 samples"}
 library(dplyr)
 library(ggplot2)
 sampleinfo %>% mutate(MillionsOfReads = colSums(assay(dds))/1e6) %>% 
-  ggplot(aes(x = sampleinfo$run, y = MillionsOfReads)) + geom_col(fill="darkgoldenrod2") + ggtitle ("Number of milliions of reads for each sample")
+  ggplot(aes(x = sampleinfo$run, y = MillionsOfReads)) + geom_col(fill="darkgoldenrod2") + ggtitle ("Number of milliions of reads for each sample") +  labs (x = "Samples") + theme_bw() 
 ```
 
 
@@ -387,8 +383,76 @@ sum(is_expressed[400,])
 ```
 
 
+```{r message = FALSE, echo = FALSE, warning=FALSE, fig.cap="Figure - Bar charts that frequency of reads for each of the 12 samples. Many genes are expressed in 2 samples only"}
+hist(rowSums(is_expressed),main="Number of samples a gene is expressed in",xlab="Sample Count", col = "lightblue2", border = "darkblue", ylim = c(0,35000))
+```
+
+
+
+
+
+
+
 ```{r}
-hist(rowSums(is_expressed),main="Number of samples a gene is expressed in",xlab="Sample Count")
+keep <- rowSums(assay(dds) >= 5) >= 2
+table(keep) 
+
+dds <- dds[keep,] # keep genes 
+```
+
+
+
+
+
+
+
+```{r message = FALSE, echo = FALSE, warning=FALSE, fig.cap="Figure - Distribution of counts   logarithmic"}
+boxplot(assay(dds), main = "Distribution for counts", xlab = "Samples") #visualise distribution for counts
+ 
+# can be also logarithmic 
+
+# log2
+vsd <- vst(dds,blind=TRUE)
+
+# normalising dristibution
+boxplot(assay(vsd), xlab="Samples", ylab="Log2 millions of counts",las=2,main="Normalised Distributions")
+# 
+abline(h=median(assay(vsd)), col="red")
+```
+
+
+
+```{r message = FALSE, echo = FALSE, warning=FALSE, fig.cap=" put here caption"}
+sampleDists <- dist(t(assay(vsd)))
+
+library(RColorBrewer)
+library(pheatmap)
+sampleDistMatrix <- as.matrix(sampleDists)
+rownames(sampleDistMatrix) <- paste(colData(dds)$time, colData(dds)$condition, sep="-")
+colnames(sampleDistMatrix) <- colData(dds)$name
+colors <- colorRampPalette( rev(brewer.pal(9, "RdBu")) )(255)
+pheatmap(sampleDistMatrix,
+         col=colors, main = "Gene heatmap")
+
+```
+
+
+
+
+```{r message = FALSE, echo = FALSE, warning=FALSE, fig.cap=" put here caption"}
+plotPCA(vsd,intgroup="time")
+```
+REVEZI AICI DIN TUTORIAL 
+https://sbc.shef.ac.uk/workshops/2020-02-13-rnaseq-r/rna-seq-preprocessing.nb.html#resources_and_data_files
+```{r}
+# 
+# sampleinfo_corrected <- mutate(sampleinfo, time = str_to_lower(time)) %>% 
+#   mutate(condition = str_trim(condition)) %>% 
+#   mutate(time = ifelse(Name == "MCL1-DH","basal",time)) %>% 
+#   mutate(time= ifelse(Name == "MCL1-LA","luminal",time))
+# sampleinfo_corrected
+# plot_data <- plotPCA(vsd,intgroup=c("time","condition"),returnData=TRUE)
+# plot_data <- bind_cols(plot_data,sampleinfo_corrected)
 ```
 
 
@@ -443,29 +507,9 @@ hist(rowSums(is_expressed),main="Number of samples a gene is expressed in",xlab=
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-```{r message = FALSE, echo = FALSE, warning=FALSE}
-#Other attempts (not following the worlflow)
+```{r message = FALSE, echo = FALSE, warning=FALSE, eval = FALSE}
+#*****************************************************************************************
+#************************Other attempts (not following the worlflow to test how plot work)
 #Saving in CSV. Can be used in GOrilla?
 
 
@@ -498,8 +542,8 @@ quantFile_51 <- read_tsv(file = 'salmon_quant/SRR7457551/quant.sf', show_col_typ
 
 
 plotVar <- ggplot(quantFile_51, aes(x = quantFile_51$TPM, y = quantFile_51$Length)) +
-  geom_point()
-plotVar + theme_bw() + scale_x_continuous(trans='log10')
+  geom_point(color = "indianred4")
+plotVar + theme_bw() + scale_x_continuous(trans='log10') + ggtitle ("TPM relation Gene length") +  labs (x = "Samples")
 
 # plotVar + theme_minimal()
 
@@ -510,7 +554,7 @@ plotVar + theme_bw() + scale_x_continuous(trans='log10')
 # 
 # text.p <- ggparagraph(text = text, face = "italic", size = 11, color = "black")
 ```
-```{r message = FALSE, echo = FALSE, warning=FALSE}
+```{r message = FALSE, eval = FALSE, echo = FALSE, warning=FALSE}
 library(readr)
 library(ggplot2)
 library(data.table)
@@ -520,11 +564,11 @@ quantFile_53 <- read_tsv(file = 'salmon_quant/SRR7457553/quant.sf', show_col_typ
 
 
 plotVar2 <- ggplot(quantFile_53, aes(x = quantFile_53$TPM, y = quantFile_53$Length)) +
-  geom_point()
+  geom_point(color = "green4")
 
-# plotvar2 + theme_bw() + scale_x_continuous(trans='log10')     #Error: object 'plotvar2' not found
-# 
-# #adding legend
+plotVar2 + theme_bw() + scale_x_continuous(trans='log10')   
+
+# adding legend
 
 text <- paste("text for this plot", "newline", sep = " ")
 
@@ -546,13 +590,13 @@ library(data.table)
 # 
 # 
 # plotVar <- ggplot(quantFile_51, aes(x = quantFile_51$TPM, y = quantFile_51$Length)) +
-#   geom_point() + ggplot(quantFile_53, aes(x = quantFile_53$TPM, y = quantFile_53$Length)) + geom_point()
+#   geom_point(color = ) + ggplot(quantFile_53, aes(x = quantFile_53$TPM, y = quantFile_53$Length)) + geom_point()
 # plotVar + theme_bw()
 # 
 # plotVar + scale_x_continuous(trans='log10')
 
 
-# geom_point() + geom_point(data, color = "red") # re-define data and overwrite top layer inheritance
+# geom_point() + geom_point(data, color = "red") # re-define data, overwrite top layer inheritance
 ```
 
 

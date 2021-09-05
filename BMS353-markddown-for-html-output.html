@@ -1609,7 +1609,7 @@ pre code {
 </tr>
 </tbody>
 </table>
-<p><a href="https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE116583">GEO</a></p>
+<p><a href="https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE116583">GSE116583</a></p>
 <p><a href="https://drive.google.com/drive/folders/1AqYi0Ps5t5xo6XYWXjOtO6eDOMpT1ADE">Google drive</a> - Google drive folder with the following content:</p>
 <ul>
 <li>meta_data</li>
@@ -1630,8 +1630,8 @@ DiagrammeR::grViz(&quot;digraph {
   rec1 -&gt; rec2 -&gt; rec3 -&gt; rec4
   }&quot;,
   height = 500)</code></pre>
-<div id="htmlwidget-562e9114e0a5457c014b" style="width:672px;height:500px;" class="grViz html-widget"></div>
-<script type="application/json" data-for="htmlwidget-562e9114e0a5457c014b">{"x":{"diagram":"digraph {\n  graph [layout = dot, rankdir = TB]\n  \n  node [shape = rectangle]        \n  rec1 [label = \"Step 1. Wake up\"]\n  rec2 [label = \"Step 2. Write code\"]\n  rec3 [label =  \"Step 3. ???\"]\n  rec4 [label = \"Step 4. PROFIT\"]\n  \n  # edge definitions with the node IDs\n  rec1 -> rec2 -> rec3 -> rec4\n  }","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-9ee18539d821078fd7c3" style="width:672px;height:500px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-9ee18539d821078fd7c3">{"x":{"diagram":"digraph {\n  graph [layout = dot, rankdir = TB]\n  \n  node [shape = rectangle]        \n  rec1 [label = \"Step 1. Wake up\"]\n  rec2 [label = \"Step 2. Write code\"]\n  rec3 [label =  \"Step 3. ???\"]\n  rec4 [label = \"Step 4. PROFIT\"]\n  \n  # edge definitions with the node IDs\n  rec1 -> rec2 -> rec3 -> rec4\n  }","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 <p>The project name BMS353-Alveolar-Macrophages—RNA-seq-dataset with all files and the code are available on github in a repository:</p>
 <p><a href="https://github.com/IoanaAndra/BMS353-Alveolar-Macrophages---RNA-seq-dataset">Github</a></p>
 <p>In order to use the necessary functions and analyze the data, we use some packages available in R:</p>
@@ -1681,8 +1681,8 @@ head(tx2GeneFile)</code></pre>
 <pre class="r"><code>#view(tx2GeneFile)</code></pre>
 <p>Name represents in quant. sf the TXNAME found in tx2gene.csv. But tx2gene.csv contains all 12 samples (in order …51-…62)</p>
 <p><strong>METHODS</strong></p>
-<div id="htmlwidget-3aa4d497652e67ab8c1f" style="width:672px;height:500px;" class="grViz html-widget"></div>
-<script type="application/json" data-for="htmlwidget-3aa4d497652e67ab8c1f">{"x":{"diagram":"digraph {\n  graph [layout = dot, rankdir = TB]\n  \n  node [shape = rectangle]        \n  rec1 [label = \"Step 1. Raw data\"]\n  rec2 [label = \"Step 2. Quality assesment\"]\n  rec3 [label =  \"Step 3. Differential expression\"]\n  rec4 [label = \"Step 4. Plot data\"]\n  \n  # edge definitions with the node IDs\n  rec1 -> rec2 -> rec3 -> rec4\n  }","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-0f3166302fcd03e56ed7" style="width:672px;height:500px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-0f3166302fcd03e56ed7">{"x":{"diagram":"digraph {\n  graph [layout = dot, rankdir = TB]\n  \n  node [shape = rectangle]        \n  rec1 [label = \"Step 1. Raw data\"]\n  rec2 [label = \"Step 2. Quality assesment\"]\n  rec3 [label =  \"Step 3. Differential expression\"]\n  rec4 [label = \"Step 4. Plot data\"]\n  \n  # edge definitions with the node IDs\n  rec1 -> rec2 -> rec3 -> rec4\n  }","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 <p><strong>ANALYSIS</strong></p>
 <p>Sample txt. presents the full experimental design that was followed. 12 columns for all 12 samples that are found in a salmon output format file that can be further read and accessed using read_tsv</p>
 <pre class="r"><code>library(tximport)

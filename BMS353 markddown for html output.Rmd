@@ -55,31 +55,13 @@ In this report we will analyze data for a research study that covers the followi
 | 4 | 2h post-perfusion |
 | 4 | 24 h post-perfusion |
 
-[GEO](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE116583)
+[GSE116583](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE116583)
 
 [Google drive](https://drive.google.com/drive/folders/1AqYi0Ps5t5xo6XYWXjOtO6eDOMpT1ADE) - Google drive folder with the following content:
 
 * meta_data
 * salmon-quant.sf files
 * tx2gene.csv
-
-```{r}
-# library(DiagrammeR)
-DiagrammeR::grViz("digraph {
-  graph [layout = dot, rankdir = TB]
-  
-  node [shape = rectangle]        
-  rec1 [label = 'Step 1. Wake up']
-  rec2 [label = 'Step 2. Write code']
-  rec3 [label =  'Step 3. ???']
-  rec4 [label = 'Step 4. PROFIT']
-  
-  # edge definitions with the node IDs
-  rec1 -> rec2 -> rec3 -> rec4
-  }",
-  height = 500)
-```
-
 
 The project name BMS353-Alveolar-Macrophages---RNA-seq-dataset with all files and the code are available on github in a repository:
 
