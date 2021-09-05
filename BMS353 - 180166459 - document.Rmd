@@ -301,7 +301,7 @@ txi <- tximport(quant_files,type="salmon",tx2gene = tx2gene)
 
 ```
 Summarising
-```{r, message = FALSE, echo = false, warning=FALSE}
+```{r, message = FALSE, echo = FALSE, warning=FALSE}
 library(readr)
 library(dplyr)
 
@@ -387,7 +387,7 @@ sampleinfo %>% mutate(MillionsOfReads = colSums(assay(dds))/1e6) %>%
 ``` 
 
 
-```{r eval = FALSE}
+```{r eval = FALSE, echo = 0:2}
 print('Gene from row 3 expressed in this number of samples:')
 sum(is_expressed[3,])
 
@@ -397,7 +397,11 @@ sum(is_expressed[400,])
 
 
 ```{r message = FALSE, echo = FALSE, warning=FALSE, fig.cap="Figure - Bar charts that frequency of reads for each of the 12 samples. Many genes are expressed in 2 samples only"}
-hist(rowSums(is_expressed),main="Number of samples a gene is expressed in",xlab="Sample Count", col = "lightblue2", border = "darkblue", ylim = c(0,35000))
+
+#,xlab="Sample Count"
+
+
+ hist(rowSums(is_expressed), main="Number of samples a gene is expressed in", col = "lightblue2", border = "darkblue", ylim = c(0,35000))
 ```
 
 
@@ -406,7 +410,7 @@ hist(rowSums(is_expressed),main="Number of samples a gene is expressed in",xlab=
 
 
 
-```{r}
+```{r eval = FALSE, echo = FALSE}
 keep <- rowSums(assay(dds) >= 5) >= 2
 table(keep) 
 
@@ -441,34 +445,34 @@ sampleDists <- dist(t(assay(vsd)))
 library(RColorBrewer)
 library(pheatmap)
 sampleDistMatrix <- as.matrix(sampleDists)
-rownames(sampleDistMatrix) <- paste(colData(dds)$time, colData(dds)$condition, sep="-")
+rownames(sampleDistMatrix) <- paste(colData(dds)$condition, colData(dds)$time, sep="-")
 colnames(sampleDistMatrix) <- colData(dds)$name
 colors <- colorRampPalette( rev(brewer.pal(9, "RdBu")) )(255)
 pheatmap(sampleDistMatrix,
          col=colors, main = "Gene heatmap")
 
 ```
-```{r}
+```{r eval = FALSE, echo = FALSE}
 assay(vsd)
 ```
 
 
 
 ```{r message = FALSE, echo = FALSE, warning=FALSE, fig.cap=" put here caption"}
-plotPCA(vsd,intgroup="time") + theme_bw() + ggtitle("title")
+plotPCA(vsd,intgroup="condition") + theme_bw() + ggtitle("title")
 ```
 
 
-```{r message = FALSE, echo = FALSE, warning=FALSE, fig.cap=" put here caption"}
-plotPCA(vsd,intgroup="time") + theme_bw() + geom_label(aes(label = sampleinfo$name)) + ggtitle("title") #same as above but with labels
+```{r message = FALSE, echo = FALSE, warning=FALSE, fig.cap=" Change the PCA plot with one that shows name labels for each sample. The values entered were consistent, as the groups were split based on states (naive and post-reperfusion"}
+plotPCA(vsd,intgroup="condition") + theme_bw() + geom_label(aes(label = sampleinfo$name)) + ggtitle("title") #same as above but with labels
 ```
 REVEZI AICI DIN TUTORIAL 
 https://sbc.shef.ac.uk/workshops/2020-02-13-rnaseq-r/rna-seq-preprocessing.nb.html#resources_and_data_files
 
 
 
-```{r message = FALSE, echo = FALSE, warning=FALSE, fig.cap=" put here caption"}
- plotPCA(vsd,intgroup= c("time","condition")) + theme_bw() + ggtitle("title")  
+```{r message = FALSE, echo = FALSE, warning=FALSE, fig.cap=" Here we can see the variance differentiated for 2h and 24h post-reperfusion"}
+ plotPCA(vsd,intgroup= c("condition","time")) + theme_bw() + ggtitle("title")  
 
 ```
 
@@ -491,6 +495,73 @@ SEE IF YOU DO STATISTICS WITH vsd (above)
 *3. Differential Expression*
 
 
+```{r}
+colData(dds)
+
+design(dds) <- ~condition
+```
+```{r}
+sf <- estimateSizeFactorsForMatrix(assay(dds))
+sf
+```
+
+
+```{r}
+dds <- estimateSizeFactors(dds)
+dds
+```
+
+```{r}
+dds <- estimateDispersions(dds)
+dds
+```
+
+
+```{r}
+dds <- nbinomWaldTest(dds)
+```
+
+
+
+```{r}
+deseqCondition <- DESeq(dds)
+```
+
+
+
+
+```{r}
+deseqCondition
+```
+
+
+
+
+```{r}
+results(deseqCondition) #shows baseMean, statistc results, p values, adjusted p values etc
+```
+```{r}
+library(dplyr)
+library(tibble)
+results_condition <- results(deseqCondition) %>%
+  as.data.frame %>% 
+  rownames_to_column("ENSEMBL GENEID")  
+
+results_condition
+```
+```{r}
+
+#sorting based on p value
+arrange(results_condition, pvalue) %>%  
+  head(n=5)
+
+#sorting can be done by choosing any existing column in the file and sort after it
+```
+
+```{r}
+arrange(results_condition, padj) %>%
+  write.csv("naive vs post-perfusion_DESeq_all.csv")
+```
 
 ```{r}
 # 
