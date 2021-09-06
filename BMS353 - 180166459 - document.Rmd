@@ -476,21 +476,21 @@ plotPCA(vsd,intgroup="condition") + theme_bw() + geom_label(aes(label = samplein
 ```
 We need to swap N03 with R08 and N04 with R07 in order to get corrected sampleinfo txt file.
 ```{r}
-library(stringr)
-library(dplyr)
-sampleinfo %>% 
-mutate(condition = str_to_lower(condition)) %>% 
-mutate(time = str_trim(time)) %>% 
-mutate(condition = ifelse(name == "N03_AM_Naive","post_reperfusion",condition)) %>% 
-mutate(condition= ifelse(name == "R08_AM_Allo24h","naive",condition)) %>% 
-write.table(file="meta_data/sampleInfo_corrected.txt",sep="\t",row.names = FALSE)
-
-sampleinfo_corrected %>% 
-mutate(condition = str_to_lower(condition)) %>% 
-mutate(time = str_trim(time)) %>% 
-mutate(condition = ifelse(name == "N04_AM_Naive","post_reperfusion",condition)) %>% 
-mutate(condition= ifelse(name == "R07_AM_Allo24h","naive",condition)) %>% 
-write.table(file="meta_data/sampleInfo_corrected.txt",sep="\t",row.names = FALSE)
+# library(stringr)
+# library(dplyr)
+# sampleinfo %>% 
+# mutate(condition = str_to_lower(condition)) %>% 
+# mutate(time = str_trim(time)) %>% 
+# mutate(condition = ifelse(name == "N03_AM_Naive","post_reperfusion",condition)) %>% 
+# mutate(condition= ifelse(name == "R08_AM_Allo24h","naive",condition)) %>% 
+# write.table(file="meta_data/sampleInfo_corrected.txt",sep="\t",row.names = FALSE)
+# 
+# sampleinfo_corrected %>% 
+# mutate(condition = str_to_lower(condition)) %>% 
+# mutate(time = str_trim(time)) %>% 
+# mutate(condition = ifelse(name == "N04_AM_Naive","post_reperfusion",condition)) %>% 
+# mutate(condition= ifelse(name == "R07_AM_Allo24h","naive",condition)) %>% 
+# write.table(file="meta_data/sampleInfo_corrected.txt",sep="\t",row.names = FALSE)
 ```
 
 
@@ -649,6 +649,13 @@ vennDiagram(venn_data)
 ```
 
 
+```{r}
+#second venn diagram
+
+venn_data <- data.frame(Basal = results(de_basal)$padj < 0.05, Luminal  = results(de_luminal)$padj<0.05)
+
+vennDiagram(venn_data)
+```
 
 
 
@@ -672,15 +679,31 @@ de_luminal <- DESeq(dds_luminal)
 ```{r}
 dds_mf <- dds
 dds_mf$Status <- as.factor(dds_mf$Status)
-design(dds_mf) <- ~CellType+Status
+design(dds_mf) <- ~condition+time
 de_mf <- DESeq(dds_mf)
 
 ```
 
+```{r}
+results_mf <- results(de_mf,contrast=c("time","naive","24h"
+                                       ))
+results_mf
+```
+
+```{r}
+dds <- estimateSizeFactors(dds) 
+```
 
 
+```{r}
+countMatrix <-counts(dds, normalized=TRUE)
+head(countMatrix)
+```
 
 
+```{r}
+write.csv(countMatrix,file="normalized_counts.csv")
+```
 
 
 
@@ -825,13 +848,163 @@ rlang::last_error() # to check last error
 
 
 
+```{r}
+library(org.Mm.eg.db)
+```
 
 
 
+```{r}
+columns(org.Mm.eg.db)
+keytypes(org.Mm.eg.db)
+keys(org.Mm.eg.db, keytype="ENSEMBL")[1:10]
+select(org.Mm.eg.db, keys="ENSMUSG00000027750",
+       keytype = "ENSEMBL",columns=c("SYMBOL","GENENAME")
+)
+```
+```{r}
+AnnotationDbi::select(org.Mm.eg.db, keys="ENSMUSG00000000381",keytype = "ENSEMBL",columns=c("SYMBOL","GENENAME"))
+```
 
 
+```{r}
+anno <- AnnotationDbi::select(org.Mm.eg.db,keys=results_cellType$ENSEMBL,
+              columns=c("SYMBOL","GENENAME"),
+              keytype="ENSEMBL")
+# Have a look at the annotation
+head(anno)
+
+dim(anno)
+
+dim(results_cellType)
 
 
+dup_ids <- anno$ENSEMBL[duplicated(anno$ENSEMBL)]
+filter(anno, ENSEMBL %in% dup_ids) %>% 
+  arrange(ENSEMBL) %>% head
+```
+
+
+```{r}
+anno <- AnnotationDbi::select(org.Mm.eg.db,keys=results_status$ENSEMBL,
+              columns=c("ENSEMBL","SYMBOL","GENENAME","ENTREZID"),
+              keytype="ENSEMBL") %>% 
+  filter(!duplicated(ENSEMBL))
+dim(anno)
+```
+
+```{r}
+results_annotated <- left_join(results_cellType, anno,by="ENSEMBL") %>% 
+  arrange(padj)
+head(results_annotated)
+```
+```{r}
+write.csv(results_annotated,file="cellType_DESeq_annotated.csv",row.names=FALSE)
+saveRDS(results_annotated, file="Robjects/results_cellType_annotated.rds")
+```
+
+
+```{r}
+library(DESeq2)
+## Read the counts that we produced previously
+dds <- readRDS("Robjects/dds.rds")
+plotCounts(dds, "ENSMUSG00000027750",intgroup = "CellType")
+```
+
+```{r}
+library(ggplot2)
+results_annotated %>% 
+  mutate(Significant = padj < 0.05 & abs(log2FoldChange) > 2) %>% 
+  ggplot(aes(x = log2FoldChange, y = -log10(padj), col=Significant)) + geom_point()
+```
+
+```{r}
+library(pheatmap)
+top_genes <- results_annotated$ENSEMBL[1:10]
+vsd <- vst(dds)
+pheatmap(assay(vsd)[top_genes,])
+```
+
+
+```{r}
+library(dplyr)
+de_genes <- results_annotated %>% 
+  filter(padj < 0.05, abs(log2FoldChange) > 1)
+de_genes
+```
+
+```{r}
+de_GO <- AnnotationDbi::select(org.Mm.eg.db, keys = de_genes$ENSEMBL,
+                      keytype = "ENSEMBL",
+                      columns = "GO")
+
+dplyr::count(de_GO, GO) 
+
+dplyr::count(de_GO, GO) %>% 
+  arrange(desc(n))
+```
+
+```{r}
+pathway_genes <- AnnotationDbi::select(org.Mm.eg.db,
+                                       keys = "GO:0016020",
+                                       keytype = "GO",
+                                       columns="SYMBOL") %>% pull(SYMBOL)
+
+go_table <- mutate(results_annotated, 
+                   inPathway = SYMBOL %in% pathway_genes,
+                   isDE = padj < 0.05 & abs(log2FoldChange) > 1)
+go_table
+```
+
+```{r}
+table(go_table$inPathway, go_table$isDE)
+
+chisq.test(table(go_table$inPathway, go_table$isDE))
+```
+
+```{r}
+library(fgsea)
+
+gseaInput <- filter(results_annotated, !is.na(ENTREZID), !is.na(stat)) %>% 
+  arrange(stat)
+ranks <- pull(gseaInput,stat)
+names(ranks) <- gseaInput$ENTREZID
+```
+```{r}
+download.file("http://bioinf.wehi.edu.au/MSigDB/v7.1/Mm.h.all.v7.1.entrez.rds", destfile = "Robjects/Mm.h.all.v7.1.entrez.rds")
+```
+
+```{r}
+Mm.H <- readRDS("Robjects/Mm.h.all.v7.1.entrez.rds")
+pathways <- Mm.H
+```
+
+```{r}
+library(fgsea)
+fgseaRes <- fgsea(pathways, ranks, minSize=15, maxSize = 500)
+dim(fgseaRes)
+```
+
+```{r}
+fgseaResTidy <- fgseaRes %>%
+  as_tibble() %>%
+  arrange(desc(NES))
+
+# Show in a nice table:
+fgseaResTidy
+```
+```{r}
+library(ggplot2)
+ggplot(fgseaResTidy, aes(reorder(pathway, NES), NES)) +
+  geom_col(aes(fill=padj<0.05)) +
+  coord_flip() +
+  labs(x="Pathway", y="Normalized Enrichment Score",
+       title="Hallmark pathways NES from GSEA")
+```
+```{r}
+plotEnrichment(pathways[["HALLMARK_OXIDATIVE_PHOSPHORYLATION"]],
+               ranks)
+```
 
 
 **CONCLUSIONS**
