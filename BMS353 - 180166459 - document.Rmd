@@ -34,14 +34,6 @@ use_python('/Users/Andr/anaconda3/bin/python')
 # prints the python configuration
 py_config()
 ```
-## R Markdown
-
-# **BMS353**
-
-# **Bioinformatics**
-
-**Alveolar Macrophages after Murine Lung Transplant -
-(mouse)**
 
 
 This is an R Markdown document. Markdown is a simple formatting syntax.
@@ -111,27 +103,27 @@ Installing all packages necessary for this project in R.
 # install.packages("ggpubr")
 # if (!requireNamespace("BiocManager", quietly = TRUE))     # installing tximport
 #     install.packages("BiocManager")
-# 
+#
 # BiocManager::install("tximport")
 
 # install.packages("jsonlite")
 # BiocManager::install("GenomicFeatures")
 
-# BiocManager::install("S4Vectors")
-# BiocManager::install("stats4")
-# BiocManager::install("BiocGenerics")
-# BiocManager::install("pheatmap")
-# BiocManager::install("org.Mm.eg.db")
-# BiocManager::install("genefilter")
-# BiocManager::install("GEOquery")
-# BiocManager::install("limma")
-# BiocManager::install("biomaRt")
-# BiocManager::install("clusterProfiler")
-# BiocManager::install("pathview")
-# BiocManager::install("fgsea")
-# install.packages("reticulate")     #to integrate Python code with R code
-#install.packages("DiagrammeR") #works with html output
-# install.packages("stringr")
+ # BiocManager::install("S4Vectors")
+ # BiocManager::install("stats4")
+ # BiocManager::install("BiocGenerics")
+ # BiocManager::install("pheatmap")
+ # BiocManager::install("org.Mm.eg.db")
+ # BiocManager::install("genefilter")
+ # BiocManager::install("GEOquery")
+ # BiocManager::install("limma")
+ # BiocManager::install("biomaRt")
+ # BiocManager::install("clusterProfiler")
+ # BiocManager::install("pathview")
+ # BiocManager::install("fgsea")
+ # install.packages("reticulate")     #to integrate Python code with R code
+ # install.packages("DiagrammeR") #works with html output
+ # install.packages("stringr")
 
 install.packages() #check installed packages. This can be seen also in Packages tab
 
@@ -154,7 +146,7 @@ CSV and TSV file formats can be stored in variables and display first row of the
 With head, we display first rows of data tx2gene.csv and a quant.sf
 
 tx2gene.csv is the transcripts and genes relationship table file
-```{r Read tx2gene.csv, tidy = FALSE, collapse = FALSE, message = FALSE, warning=FALSE} 
+```{r Read tx2gene.csv, tidy = FALSE, collapse = FALSE, message = FALSE, warning=FALSE, echo = FALSE } 
 library(readr)
 
 dataPath <- "tx2gene.csv" #asigning value which represent path of file
@@ -166,17 +158,9 @@ head(tx2GeneFile, n = 2)
 head(quantFile, n = 3 )
 #view(tx2GeneFile)
 ```
-Name represents in quant. sf the TXNAME found in tx2gene.csv. But tx2gene.csv contains all 12 samples (in order ...51-...62)
 
 
-
-
- 
-
-
-
-Sample txt. presents the full experimental design that was followed. 12 columns for all 12 samples that are found in a salmon output format file that can be further read and accessed using read_tsv
-```{r echo = FALSE, tidy = FALSE, collapse = FALSE, message = FALSE, warning=FALSE}
+```{r echo = FALSE, tidy = FALSE, collapse = FALSE, message = FALSE, warning=FALSE, eval = FALSE}
 
 
 library(tximport)
@@ -233,7 +217,7 @@ tpm <- rpk / scale_factor
 gtf_file <- "Mus_musculus.GRCm38.91.chr.gtf.gz"
 file.exists(gtf_file)
 
-download.file("ftp://ftp.ensembl.org/pub/release-91/gtf/mus_musculus/Mus_musculus.GRCm38.91.chr.gtf.gz",destfile = gtf_file) #gtf based on organism of interest
+download.file("ftp://ftp.ensembl.org/pub/release-91/gtf/mus_musculus/Mus_musculus.GRCm38.91.chr.gtf.gz",destfile = gtf_file) #downloading gtf based on organism of interest
 
 # create a database of transcripts
 # Could take a few minutes to run the makeTxDbFromGFF command
@@ -401,7 +385,7 @@ sum(is_expressed[400,])
 #THIS CAUSES AN ERROR WHILE KNITTING - It works as R script file but it could be an issue with knitr package here?? Not sure
 #error: error in evaluating the argument 'x' in selecting a method for function 'rowSums': object
 
- # hist(rowSums(is_expressed), main="Number of samples a gene is expressed in", col = "lightblue2",xlab="Sample Count", border = "darkblue", ylim = c(0,35000))
+  # hist(rowSums(is_expressed), main="Number of samples a gene is expressed in", col = "lightblue2",xlab="Sample Count", border = "darkblue", ylim = c(0,35000))
 ```
 
 
@@ -431,7 +415,7 @@ boxplot(assay(dds), main = "Distribution for counts", xlab = "Samples") #visuali
 # log2
 vsd <- vst(dds,blind=TRUE)
 
-# normalising dristibution
+# normalising distibution
 boxplot(assay(vsd), xlab="Samples", ylab="Log2 millions of counts",las=2,main="Normalised Distributions")
 # 
 abline(h=median(assay(vsd)), col="red") # add straight line to plot (linear regression)
@@ -476,29 +460,34 @@ plotPCA(vsd,intgroup="condition") + theme_bw() + geom_label(aes(label = samplein
 ```
 We need to swap N03 with R08 and N04 with R07 in order to get corrected sampleinfo txt file.
 ```{r}
-# library(stringr)
-# library(dplyr)
-# sampleinfo %>% 
-# mutate(condition = str_to_lower(condition)) %>% 
-# mutate(time = str_trim(time)) %>% 
-# mutate(condition = ifelse(name == "N03_AM_Naive","post_reperfusion",condition)) %>% 
-# mutate(condition= ifelse(name == "R08_AM_Allo24h","naive",condition)) %>% 
-# write.table(file="meta_data/sampleInfo_corrected.txt",sep="\t",row.names = FALSE)
-# 
-# sampleinfo_corrected %>% 
-# mutate(condition = str_to_lower(condition)) %>% 
-# mutate(time = str_trim(time)) %>% 
-# mutate(condition = ifelse(name == "N04_AM_Naive","post_reperfusion",condition)) %>% 
-# mutate(condition= ifelse(name == "R07_AM_Allo24h","naive",condition)) %>% 
-# write.table(file="meta_data/sampleInfo_corrected.txt",sep="\t",row.names = FALSE)
+library(stringr)
+library(dplyr)
+sampleinfo %>%
+mutate(condition = str_to_lower(condition)) %>%
+mutate(time = str_trim(time)) %>%
+mutate(condition = ifelse(name == "N03_AM_Naive","naive",condition)) %>%
+mutate(condition= ifelse(name == "R08_AM_Allo24h","post_reperfusion",condition)) %>%
+ 
+write.table(file="meta_data/sampleInfo_corrected.txt",sep="\t",row.names = FALSE)
+
+ sampleinfo %>%
+ mutate(condition = str_to_lower(condition)) %>%
+ mutate(time = str_trim(time)) %>%
+ mutate(condition = ifelse(name == "N04_AM_Naive","post_reperfusion",condition)) %>%
+mutate(condition= ifelse(name == "R07_AM_Allo24h","naive",condition)) %>%
+
+ write.table(file="meta_data/sampleInfo_corrected.txt",sep="\t",row.names = FALSE)
 ```
 
 
 
 ```{r}
-sampleinfo_corrected <- read_tsv("meta_data/sampleInfo_corrected.txt", show_col_types = FALSE)
+library(readr)
+library(DESeq2)
+sampleinfo_corrected <- read_tsv("meta_data/sampleInfo - Corrected.txt", show_col_types = FALSE)
+View(sampleinfo_corrected)
 dds <- DESeqDataSetFromTximport(txi, 
-                                colData = sampleinfo,
+                                colData = sampleinfo_corrected,
                                 design <- ~condition)
                                 
 dds
@@ -508,10 +497,10 @@ vsd <- vst(dds)
 
 
 
-```{r message=FALSE, echo = FALSE, warning=FALSE, fig.cap="Change the PCA plot with one that shows name labels for each sample with corrected sampleinfo"}
+```{r message=FALSE, echo = FALSE, warning=FALSE, fig.cap="Change the PCA plot with one that shows name labels for each sample with corrected sampleinfo - sampleinfo_corrected"}
+library(ggplot2)
 
-
-plotPCA(vsd,intgroup="condition") + theme_bw() + geom_label(aes(label = sampleinfo$name)) + ggtitle("title") #same as above but with labels
+plotPCA(vsd,intgroup="condition") + theme_bw() + geom_label(aes(label = sampleinfo_corrected$name)) + ggtitle("title") #same as above but with labels
 
  plotPCA(vsd,intgroup= c("condition","time")) + theme_bw() + ggtitle("PCA plot for corrected sample info file")  
 
@@ -523,7 +512,7 @@ assay(vsd) %>%
   data.frame %>% 
   tibble::rownames_to_column("Gene")
 ```
-SEE IF YOU DO STATISTICS WITH vsd (above)
+
 
 
 
@@ -545,52 +534,35 @@ sf
 
 
 ```{r echo = FALSE, eval = FALSE}
-dds <- estimateSizeFactors(dds)
-dds
-```
-
-```{r echo = FALSE, eval = FALSE}
-dds <- estimateDispersions(dds)
-dds
-```
-
-
-```{r echo = FALSE, eval = FALSE}
-dds <- nbinomWaldTest(dds)
-```
-
-
-
-```{r echo = FALSE, eval = FALSE}
-deseqCondition <- DESeq(dds)
+de_condition <- DESeq(dds)
 ```
 
 
 
 
 ```{r echo = FALSE, eval = FALSE}
-deseqCondition #displays in console 
+de_condition #displays in console 
 ```
 
 
 
 
 ```{r echo = FALSE, eval = FALSE}
-results(deseqCondition) #shows baseMean, statistc results, p values, adjusted p values etc
+results(de_condition) #shows baseMean, statistc results, p values, adjusted p values etc
 ```
 ```{r}
 library(dplyr)
 library(tibble)
-results_condition <- results(deseqCondition) %>%
-  as.data.frame %>% 
-  rownames_to_column("ENSEMBL GENEID")  
+results_condition <- results(de_condition) %>%
+  as.data.frame %>%
+  rownames_to_column("ENSEMBL")
 
 results_condition
 ```
 ```{r}
 
 #sorting based on p value
-arrange(results_condition, pvalue) %>%  
+arrange(results_condition, pvalue) %>%
   head(n=5)
 
 #sorting can be done by choosing any existing column in the file and sort after it
@@ -609,11 +581,11 @@ arrange(results_condition, padj) %>%
 
 ```{r}
 library(tidyr)
-assay(vsd) %>% 
-  data.frame %>% 
-  tibble::rownames_to_column("Gene") %>% 
-  pivot_longer(-Gene) %>% 
-  ggplot(aes(x = name, y = value)) + geom_boxplot(fill="lightgreen") + theme(axis.text.x.bottom = element_text(angle=90)) + theme + ggtitle("Plot")
+assay(vsd) %>%
+  data.frame %>%
+  tibble::rownames_to_column("Gene") %>%
+  pivot_longer(-Gene) %>%
+  ggplot(aes(x = name, y = value)) + geom_boxplot(fill="lightgreen") + theme(axis.text.x.bottom = element_text(angle=90)) + theme_bw() + ggtitle("Plot")
 
 ```
 
@@ -626,113 +598,226 @@ saveRDS(dds, file="Robjects/dds.rds")
 
 
 ```{r}
-dds_time <- dds
-colData(dds)
-design(dds_status) <- ~time
 
-#TO DO
+dds_time$time <- as.factor(dds_time$time)
+colData(dds)
+design(dds_time) <- ~time
+
+de_time <- DESeq(dds)
+library(dplyr)
+library(tibble)
+results_condition <- results(de_time) %>%
+  as.data.frame %>%
+  rownames_to_column("ENSEMBL")
+
+results_condition
+
 ```
+Using now time as factor of interest.
+
 
 ```{r}
 dds_time <- dds
-dds_status$Status <- as.factor(dds$Status)
-design(dds_status) <- ~Status
-de_status <- DESeq(dds_time)
-results_status <- results(de_status) %>%
+colData(dds)
+dds_time$time <- as.factor(dds_time$time)
+design(dds_time) <- ~time
+de_time <- DESeq(dds_time)
+
+results_time <- results(de_time) %>%
   as.data.frame %>% 
   rownames_to_column("ENSEMBL")  
 
-venn_data <- data.frame(CellType = results_cellType$padj<0.05,
-                        Status = results_status$padj < 0.05)
-library(limma)
-vennDiagram(venn_data)
+results_time
+
+# saveRDS("Robjects/results_time.rds")
+
+
+library(readr)
+results_time %>% filter(abs(log2FoldChange) > 1, padj < 0.05) %>% 
+  write_csv("0h_vs_24h_DE.csv")
+```
+
+  
+  
+  
+```{r} 
+# library(limma)
+# results_p_vs_v <- results(de_time, contrast = c("time","0h","2h")) %>% 
+#     as.data.frame %>% 
+#   rownames_to_column("ENSEMBL")  
+# 
+# results_l_vs_v <- results(de_time, contrast = c("time","2h","24h")) %>% 
+#     as.data.frame %>% 
+#   rownames_to_column("ENSEMBL")  
+# 
+# venn_data <- data.frame("0h" = results_p_vs_v$padj < 0.05, "24" = results_l_vs_v$padj < 0.05)
+# 
+# vennDiagram(venn_data)
+```
+
+
+
+
+```{r}
+library(org.Mm.eg.db)
+```
+
+
+
+```{r}
+columns(org.Mm.eg.db)
+keytypes(org.Mm.eg.db)
+keys(org.Mm.eg.db, keytype="ENSEMBL")[1:10]
+select(org.Mm.eg.db, keys="ENSMUSG00000027750",
+       keytype = "ENSEMBL",columns=c("SYMBOL","GENENAME")
+)
+```
+```{r}
+AnnotationDbi::select(org.Mm.eg.db, keys="ENSMUSG00000000381",keytype = "ENSEMBL",columns=c("SYMBOL","GENENAME"))
 ```
 
 
 ```{r}
-#second venn diagram
+anno <- AnnotationDbi::select(org.Mm.eg.db,keys=results_condition$ENSEMBL,
+              columns=c("SYMBOL","GENENAME"),
+              keytype="ENSEMBL")
+# Have a look at the annotation
+head(anno)
 
-venn_data <- data.frame(Basal = results(de_basal)$padj < 0.05, Luminal  = results(de_luminal)$padj<0.05)
+dim(anno)
 
-vennDiagram(venn_data)
-```
-
-
-
-```{r}
-dds_basal <- dds[,which(dds$CellType == "basal")]
-dds_basal$Status <- as.factor(dds_basal$Status)
-design(dds_basal) <- ~Status
-## perform analysis
-de_basal <- DESeq(dds_basal)
-```
+dim(results_condition)
 
 
-
-```{r}
-dds_luminal <- dds[,which(dds$CellType == "luminal")]
-dds_luminal$Status <- as.factor(dds_luminal$Status)
-design(dds_luminal) <- ~Status
-de_luminal <- DESeq(dds_luminal)
-```
-
-```{r}
-dds_mf <- dds
-dds_mf$Status <- as.factor(dds_mf$Status)
-design(dds_mf) <- ~condition+time
-de_mf <- DESeq(dds_mf)
-
-```
-
-```{r}
-results_mf <- results(de_mf,contrast=c("time","naive","24h"
-                                       ))
-results_mf
-```
-
-```{r}
-dds <- estimateSizeFactors(dds) 
+dup_ids <- anno$ENSEMBL[duplicated(anno$ENSEMBL)]
+filter(anno, ENSEMBL %in% dup_ids) %>%
+  arrange(ENSEMBL) %>% head
 ```
 
 
 ```{r}
-countMatrix <-counts(dds, normalized=TRUE)
-head(countMatrix)
+anno <- AnnotationDbi::select(org.Mm.eg.db,keys=results_condition$ENSEMBL,
+              columns=c("ENSEMBL","SYMBOL","GENENAME","ENTREZID"),
+              keytype="ENSEMBL") %>%
+  filter(!duplicated(ENSEMBL))
+dim(anno)
+```
+
+```{r}
+results_annotated <- left_join(results_condition, anno,by="ENSEMBL") %>%
+  arrange(padj)
+head(results_annotated)
+```
+```{r}
+write.csv(results_annotated,file="results_condition_DESeq_annotated.csv",row.names=FALSE)
+saveRDS(results_annotated, file="Robjects/results_cellType_annotated.rds")
+```
+
+
+```{r fig.cap = "Normalized count in each sample of the gene ENSMUSG00000027750}
+library(DESeq2)
+## Read counts. These were produced above
+dds <- readRDS("Robjects/dds.rds")
+plotCounts(dds, "ENSMUSG00000027750",intgroup = "condition") 
+```
+
+```{r fig.cap = "Differential expression which presents p values for difference between conditions"}
+library(ggplot2)
+results_annotated %>%
+  mutate(Significant = padj < 0.05 & abs(log2FoldChange) > 2) %>%
+  ggplot(aes(x = log2FoldChange, y = -log10(padj), col=Significant)) + geom_point() + theme_bw() + ggtitle("Differential expression - p values and magnituted - differences between genes")
+```
+
+```{r}
+library(pheatmap)
+top_genes <- results_annotated$ENSEMBL[1:10]
+vsd <- vst(dds)
+pheatmap(assay(vsd)[top_genes,], main = "Gene map")
 ```
 
 
 ```{r}
-write.csv(countMatrix,file="normalized_counts.csv")
+library(dplyr)
+de_genes <- results_annotated %>%
+  filter(padj < 0.05, abs(log2FoldChange) > 1)
+de_genes
+```
+
+```{r}
+de_GO <- AnnotationDbi::select(org.Mm.eg.db, keys = de_genes$ENSEMBL,
+                      keytype = "ENSEMBL",
+                      columns = "GO")
+
+dplyr::count(de_GO, GO)
+
+dplyr::count(de_GO, GO) %>%
+  arrange(desc(n))
+```
+
+```{r}
+pathway_genes <- AnnotationDbi::select(org.Mm.eg.db,
+                                       keys = "GO:0016020",
+                                       keytype = "GO",
+                                       columns="SYMBOL") %>% pull(SYMBOL)
+
+go_table <- mutate(results_annotated,
+                   inPathway = SYMBOL %in% pathway_genes,
+                   isDE = padj < 0.05 & abs(log2FoldChange) > 1)
+go_table
+```
+
+```{r}
+table(go_table$inPathway, go_table$isDE)
+
+chisq.test(table(go_table$inPathway, go_table$isDE))
+```
+
+```{r}
+library(fgsea)
+
+gseaInput <- filter(results_annotated, !is.na(ENTREZID), !is.na(stat)) %>%
+  arrange(stat)
+ranks <- pull(gseaInput,stat)
+names(ranks) <- gseaInput$ENTREZID
+```
+```{r}
+download.file("http://bioinf.wehi.edu.au/MSigDB/v7.1/Mm.h.all.v7.1.entrez.rds", destfile = "Robjects/Mm.h.all.v7.1.entrez.rds")
+```
+
+```{r}
+Mm.H <- readRDS("Robjects/Mm.h.all.v7.1.entrez.rds")
+pathways <- Mm.H
+```
+
+```{r}
+library(fgsea)
+fgseaRes <- fgsea(pathways, ranks, minSize=15, maxSize = 500)
+dim(fgseaRes)
+```
+
+```{r}
+fgseaResTidy <- fgseaRes %>%
+  as_tibble() %>%
+  arrange(desc(NES))
+
+# displays table of hallmarks
+fgseaResTidy
+```
+```{r}
+library(ggplot2)
+ggplot(fgseaResTidy, aes(reorder(pathway, NES), NES)) +
+  geom_col(aes(fill=padj<0.05)) +
+  coord_flip() +
+  labs(x="Pathway", y="Normalized Enrichment Score",
+       title="Hallmark pathways NES from GSEA")
+```
+```{r}
+plotEnrichment(pathways[["HALLMARK_OXIDATIVE_PHOSPHORYLATION"]],
+               ranks)
 ```
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+```
 
 
 
@@ -744,21 +829,21 @@ write.csv(countMatrix,file="normalized_counts.csv")
 ```{r message = FALSE, echo = FALSE, warning=FALSE, eval = FALSE}
 #*****************************************************************************************
 #************************Other attempts (not following the worlflow to test how plot work)
-#Saving in CSV. Can be used in GOrilla?
+
 
 
 
 # library(readr)
 # library(dplyr)
-# 
+#
 # quantFile <- read_tsv(file = 'salmon_quant/SRR7457551/quant.sf')
 # write.csv(quantFile, sep=",", file = 'Salmon outputs converted into CSV/SRR7457551.csv')
-# 
+#
 # tx2gene <- dplyr:::select(quants, Name, GENEID)
 # head(tx2gene)
-# 
+#
 # any(is.na(tx2gene$GENEID))
-# 
+#
 # tx2gene <- filter(tx2gene, !is.na(GENEID))
 # # write.table(quantFile, file="", quote=TRUE, sep=",", row.names=TRUE)
 # ```
@@ -785,7 +870,7 @@ plotVar + theme_bw() + scale_x_continuous(trans='log10') + ggtitle ("TPM relatio
 
 
 # text <- paste("text for this plot", "newline", sep = " ")
-# 
+#
 # text.p <- ggparagraph(text = text, face = "italic", size = 11, color = "black")
 ```
 ```{r message = FALSE, eval = FALSE, echo = FALSE, warning=FALSE}
@@ -800,7 +885,7 @@ quantFile_53 <- read_tsv(file = 'salmon_quant/SRR7457553/quant.sf', show_col_typ
 plotVar2 <- ggplot(quantFile_53, aes(x = quantFile_53$TPM, y = quantFile_53$Length)) +
   geom_point(color = "green4")
 
-plotVar2 + theme_bw() + scale_x_continuous(trans='log10')   
+plotVar2 + theme_bw() + scale_x_continuous(trans='log10')
 
 # adding legend
 
@@ -824,7 +909,7 @@ quantFile_51 <- read_tsv(file = 'salmon_quant/SRR7457551/quant.sf') #2hpost-perf
 
 
 plotVar <- ggplot(quantFile_51, aes(x = quantFile_51$TPM, y = quantFile_51$Length)) +
-  geom_point() 
+  geom_point()
 
 # plotVar + theme_bw()
 
@@ -847,164 +932,6 @@ rlang::last_error() # to check last error
 ```
 
 
-
-```{r}
-library(org.Mm.eg.db)
-```
-
-
-
-```{r}
-columns(org.Mm.eg.db)
-keytypes(org.Mm.eg.db)
-keys(org.Mm.eg.db, keytype="ENSEMBL")[1:10]
-select(org.Mm.eg.db, keys="ENSMUSG00000027750",
-       keytype = "ENSEMBL",columns=c("SYMBOL","GENENAME")
-)
-```
-```{r}
-AnnotationDbi::select(org.Mm.eg.db, keys="ENSMUSG00000000381",keytype = "ENSEMBL",columns=c("SYMBOL","GENENAME"))
-```
-
-
-```{r}
-anno <- AnnotationDbi::select(org.Mm.eg.db,keys=results_cellType$ENSEMBL,
-              columns=c("SYMBOL","GENENAME"),
-              keytype="ENSEMBL")
-# Have a look at the annotation
-head(anno)
-
-dim(anno)
-
-dim(results_cellType)
-
-
-dup_ids <- anno$ENSEMBL[duplicated(anno$ENSEMBL)]
-filter(anno, ENSEMBL %in% dup_ids) %>% 
-  arrange(ENSEMBL) %>% head
-```
-
-
-```{r}
-anno <- AnnotationDbi::select(org.Mm.eg.db,keys=results_status$ENSEMBL,
-              columns=c("ENSEMBL","SYMBOL","GENENAME","ENTREZID"),
-              keytype="ENSEMBL") %>% 
-  filter(!duplicated(ENSEMBL))
-dim(anno)
-```
-
-```{r}
-results_annotated <- left_join(results_cellType, anno,by="ENSEMBL") %>% 
-  arrange(padj)
-head(results_annotated)
-```
-```{r}
-write.csv(results_annotated,file="cellType_DESeq_annotated.csv",row.names=FALSE)
-saveRDS(results_annotated, file="Robjects/results_cellType_annotated.rds")
-```
-
-
-```{r}
-library(DESeq2)
-## Read the counts that we produced previously
-dds <- readRDS("Robjects/dds.rds")
-plotCounts(dds, "ENSMUSG00000027750",intgroup = "CellType")
-```
-
-```{r}
-library(ggplot2)
-results_annotated %>% 
-  mutate(Significant = padj < 0.05 & abs(log2FoldChange) > 2) %>% 
-  ggplot(aes(x = log2FoldChange, y = -log10(padj), col=Significant)) + geom_point()
-```
-
-```{r}
-library(pheatmap)
-top_genes <- results_annotated$ENSEMBL[1:10]
-vsd <- vst(dds)
-pheatmap(assay(vsd)[top_genes,])
-```
-
-
-```{r}
-library(dplyr)
-de_genes <- results_annotated %>% 
-  filter(padj < 0.05, abs(log2FoldChange) > 1)
-de_genes
-```
-
-```{r}
-de_GO <- AnnotationDbi::select(org.Mm.eg.db, keys = de_genes$ENSEMBL,
-                      keytype = "ENSEMBL",
-                      columns = "GO")
-
-dplyr::count(de_GO, GO) 
-
-dplyr::count(de_GO, GO) %>% 
-  arrange(desc(n))
-```
-
-```{r}
-pathway_genes <- AnnotationDbi::select(org.Mm.eg.db,
-                                       keys = "GO:0016020",
-                                       keytype = "GO",
-                                       columns="SYMBOL") %>% pull(SYMBOL)
-
-go_table <- mutate(results_annotated, 
-                   inPathway = SYMBOL %in% pathway_genes,
-                   isDE = padj < 0.05 & abs(log2FoldChange) > 1)
-go_table
-```
-
-```{r}
-table(go_table$inPathway, go_table$isDE)
-
-chisq.test(table(go_table$inPathway, go_table$isDE))
-```
-
-```{r}
-library(fgsea)
-
-gseaInput <- filter(results_annotated, !is.na(ENTREZID), !is.na(stat)) %>% 
-  arrange(stat)
-ranks <- pull(gseaInput,stat)
-names(ranks) <- gseaInput$ENTREZID
-```
-```{r}
-download.file("http://bioinf.wehi.edu.au/MSigDB/v7.1/Mm.h.all.v7.1.entrez.rds", destfile = "Robjects/Mm.h.all.v7.1.entrez.rds")
-```
-
-```{r}
-Mm.H <- readRDS("Robjects/Mm.h.all.v7.1.entrez.rds")
-pathways <- Mm.H
-```
-
-```{r}
-library(fgsea)
-fgseaRes <- fgsea(pathways, ranks, minSize=15, maxSize = 500)
-dim(fgseaRes)
-```
-
-```{r}
-fgseaResTidy <- fgseaRes %>%
-  as_tibble() %>%
-  arrange(desc(NES))
-
-# Show in a nice table:
-fgseaResTidy
-```
-```{r}
-library(ggplot2)
-ggplot(fgseaResTidy, aes(reorder(pathway, NES), NES)) +
-  geom_col(aes(fill=padj<0.05)) +
-  coord_flip() +
-  labs(x="Pathway", y="Normalized Enrichment Score",
-       title="Hallmark pathways NES from GSEA")
-```
-```{r}
-plotEnrichment(pathways[["HALLMARK_OXIDATIVE_PHOSPHORYLATION"]],
-               ranks)
-```
 
 
 **CONCLUSIONS**
