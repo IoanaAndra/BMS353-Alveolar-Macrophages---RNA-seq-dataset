@@ -208,6 +208,10 @@ max(quants$TPM)
 After asigning to quants variable the files
 
 ```{r echo = FALSE, tidy = FALSE, collapse = FALSE, message = FALSE, warning = FALSE}
+library(tximport)
+library(readr)
+
+# ERROR FOR object quants. Unable knitting the latest version of Rmd. 
 rpk <- quants$NumReads / quants$EffectiveLength
 scale_factor <- sum(rpk) / 1e6
 tpm <- rpk / scale_factor
@@ -513,12 +517,6 @@ assay(vsd) %>%
   tibble::rownames_to_column("Gene")
 ```
 
-
-
-
-
-
-
 *3. Differential Expression*
 
 
@@ -656,7 +654,7 @@ results_time %>% filter(abs(log2FoldChange) > 1, padj < 0.05) %>%
 ```
 
 
-
+*4. Annotation and visualisation of data
 
 ```{r}
 library(org.Mm.eg.db)
@@ -714,7 +712,7 @@ saveRDS(results_annotated, file="Robjects/results_cellType_annotated.rds")
 ```
 
 
-```{r fig.cap = "Normalized count in each sample of the gene ENSMUSG00000027750}
+```{r fig.cap = "Normalized count in each sample of the gene ENSMUSG00000027750"}
 library(DESeq2)
 ## Read counts. These were produced above
 dds <- readRDS("Robjects/dds.rds")
