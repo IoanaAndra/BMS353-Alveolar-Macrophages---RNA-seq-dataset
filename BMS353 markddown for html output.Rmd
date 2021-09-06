@@ -6,6 +6,8 @@ date: "2/8/2021"
 output:
   html_document
 ---
+
+This was created only to test some things that work in html output. Image alignment can be done, formatting of text with more control, or add syling (CSS). 
 ```{r echo = FALSE, eval = FALSE, message = FALSE, warning=FALSE}
 version #check version of RStudio - this is relevant for packages 
 ```
